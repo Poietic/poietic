@@ -1,5 +1,6 @@
 use actix_web::{App, HttpServer};
 use config::http_server_config::HttpServerConfig;
+use tokio::task::{JoinError, JoinSet};
 
 use crate::config::base_config::BaseConfig;
 
@@ -14,8 +15,13 @@ async fn start_http_server(config: HttpServerConfig) {
 }
 
 #[actix_web::main]
-async fn main() -> () {
+async fn main() -> Result<(), JoinError> {
     let config = BaseConfig::load().unwrap();
-    tokio::spawn(start_http_server(config.client));
-    tokio::spawn(start_http_server(config.admin));
+    let mut http_server_set = JoinSet::new();
+    http_server_set.spawn(start_http_server(config.client));
+    http_server_set.spawn(start_http_server(config.admin));
+    while let Some(res) = http_server_set.join_next().await {
+        let _ = res?;
+    }
+    Ok(())
 }

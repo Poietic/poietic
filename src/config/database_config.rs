@@ -2,7 +2,7 @@ use std::net::IpAddr;
 
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct DatabaseConfig {
     pub address: IpAddr,
     pub port: u16,

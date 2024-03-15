@@ -749,6 +749,7 @@ dependencies = [
  "actix-web",
  "serde",
  "serde_yaml",
+ "tokio",
 ]
 
 [[package]]

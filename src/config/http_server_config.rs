@@ -1,6 +1,9 @@
+use std::net::IpAddr;
+
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Clone, Deserialize)]
 pub struct HttpServerConfig {
-    port: u16
+    pub address: IpAddr,
+    pub port: u16
 }

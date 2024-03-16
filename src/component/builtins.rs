@@ -1,8 +1,8 @@
-use serde_json::Value as JsonValue;
-
 use crate::html::{HtmlElement, HtmlNode, TextNode};
 
-use super::{SyncComponent, RenderError, RenderParams, RenderResult};
+use super::{
+    render_composition, AsyncComponent, JsonValue, RenderError, RenderFuture, RenderParams, RenderResult, SyncComponent
+};
 
 #[derive(Default)]
 pub struct Paragraph;
@@ -44,5 +44,27 @@ impl SyncComponent for Heading {
             Default::default(),
             vec![text_element],
         )?))
+    }
+}
+
+#[derive(Default)]
+pub struct ComponentList;
+
+impl AsyncComponent for ComponentList {
+    fn render(&self, params: RenderParams) -> RenderFuture {
+        Box::pin(async move {
+            let Some(JsonValue::Array(children)) = params.get("children") else {
+                return Err(RenderError::BadParams);
+            };
+            let mut children_output = Vec::<HtmlElement>::with_capacity(children.len());
+            for child in children {
+                children_output.push(render_composition(child.clone()).await?);
+            }
+            Ok(HtmlElement::Node(HtmlNode::new(
+                "div".to_string(),
+                Default::default(),
+                children_output,
+            )?))
+        })
     }
 }

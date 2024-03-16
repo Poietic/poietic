@@ -6,7 +6,7 @@ use std::{
 use tokio::sync::RwLock;
 
 use super::{
-    builtins::{Heading, Paragraph},
+    builtins::{ComponentList, Heading, Paragraph},
     Component,
 };
 
@@ -49,6 +49,10 @@ fn create_component_dictionary() -> RwLock<ComponentDictionary> {
         (
             "Paragraph".to_string(),
             Component::Sync(Arc::new(Paragraph::default())),
+        ),
+        (
+            "ComponentList".to_string(),
+            Component::Async(Arc::new(ComponentList::default())),
         ),
     ];
     let poietic_namespace = ComponentNamespace::new(builtin_components.iter().cloned().collect());

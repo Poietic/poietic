@@ -1,6 +1,6 @@
-use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
 use serde_json::Map;
 pub use serde_json::Value as JsonValue;
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::html::{HtmlElement, HtmlError};
 
@@ -9,6 +9,7 @@ use self::component_dictionary::get_component;
 mod builtins;
 mod component_dictionary;
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum RenderError {
     BadParams,
     HtmlError(HtmlError),

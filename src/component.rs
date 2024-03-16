@@ -19,13 +19,14 @@ impl From<HtmlError> for RenderError {
 
 pub type RenderParams = HashMap<String, serde_json::Value>;
 pub type RenderResult = Result<HtmlElement, RenderError>;
+pub type RenderFuture = Pin<Box<dyn Future<Output = RenderResult>>>;
 
 pub trait SyncComponent: Send + Sync {
     fn render(&self, params: RenderParams) -> RenderResult;
 }
 
 pub trait AsyncComponent: Send + Sync {
-    fn render(&self, params: RenderParams) -> Pin<Box<dyn Future<Output = RenderResult>>>;
+    fn render(&self, params: RenderParams) -> RenderFuture;
 }
 
 #[derive(Clone)]

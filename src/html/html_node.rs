@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{
-    html_safety::{getSafeHtmlTagSet, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
+    html_safety::{get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
     HtmlElement, HtmlError,
 };
 
@@ -30,7 +30,7 @@ impl HtmlNode {
     }
 
     fn validate_tag(tag: &str) -> Result<(), HtmlError> {
-        if !getSafeHtmlTagSet().contains(&tag) {
+        if !get_safe_html_tag_set().contains(&tag) {
             Err(HtmlError::IllegalTag)
         } else {
             Ok(())

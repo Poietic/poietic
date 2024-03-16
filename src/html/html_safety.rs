@@ -99,7 +99,7 @@ const SAFE_HTML_TAGS: &[&str] = &[
 
 static SAFE_HTML_TAG_SET: OnceLock<HashSet<&str>> = OnceLock::new();
 
-pub fn getSafeHtmlTagSet() -> &'static HashSet<&'static str> {
+pub fn get_safe_html_tag_set() -> &'static HashSet<&'static str> {
     SAFE_HTML_TAG_SET.get_or_init(|| SAFE_HTML_TAGS.iter().cloned().collect())
 }
 

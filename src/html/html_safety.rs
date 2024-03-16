@@ -1,4 +1,6 @@
-pub const SAFE_HTML_TAGS: &[&str] = &[
+use std::{collections::HashSet, sync::OnceLock};
+
+const SAFE_HTML_TAGS: &[&str] = &[
     "a",
     "abbr",
     "acronym",
@@ -94,5 +96,11 @@ pub const SAFE_HTML_TAGS: &[&str] = &[
     "video",
     "wbr",
 ];
+
+static SAFE_HTML_TAG_SET: OnceLock<HashSet<&str>> = OnceLock::new();
+
+pub fn getSafeHtmlTagSet() -> &'static HashSet<&'static str> {
+    SAFE_HTML_TAG_SET.get_or_init(|| SAFE_HTML_TAGS.iter().cloned().collect())
+}
 
 pub const ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS: &[char] = &['\0', '\'', '"', '<', '>', '/', '='];

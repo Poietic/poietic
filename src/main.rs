@@ -5,6 +5,7 @@ use tokio::task::{JoinError, JoinSet};
 use crate::config::base_config::BaseConfig;
 
 mod config;
+mod html;
 
 async fn start_http_server(config: HttpServerConfig) {
     HttpServer::new(|| App::new())

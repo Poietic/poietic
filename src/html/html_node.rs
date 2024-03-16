@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{
-    html_safety::{ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS, getSafeHtmlTagSet},
+    html_safety::{getSafeHtmlTagSet, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
     HtmlElement, HtmlError,
 };
 
@@ -73,6 +73,12 @@ impl HtmlNode {
 #[cfg(test)]
 mod test {
     use crate::html::{html_node::HtmlError, HtmlNode};
+
+    #[test]
+    fn create_html_node() {
+        let node = HtmlNode::new("p".to_string(), [].into(), [].into());
+        assert!(node.is_ok());
+    }
 
     #[test]
     fn atribute_html_injection() {

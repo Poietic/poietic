@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::html::{HtmlElement, HtmlError};
 
+mod builtins;
+
 pub enum RenderError {
     BadParams,
     HtmlError(HtmlError),

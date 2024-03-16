@@ -2,12 +2,12 @@ use serde_json::Value as JsonValue;
 
 use crate::html::{HtmlElement, HtmlNode, TextNode};
 
-use super::{Component, RenderError, RenderParams, RenderResult};
+use super::{SyncComponent, RenderError, RenderParams, RenderResult};
 
 #[derive(Default)]
 pub struct Paragraph;
 
-impl Component for Paragraph {
+impl SyncComponent for Paragraph {
     fn render(&self, params: RenderParams) -> RenderResult {
         let Some(JsonValue::String(content)) = params.get("content") else {
             return Err(RenderError::BadParams);
@@ -24,7 +24,7 @@ impl Component for Paragraph {
 #[derive(Default)]
 pub struct Heading;
 
-impl Component for Heading {
+impl SyncComponent for Heading {
     fn render(&self, params: RenderParams) -> RenderResult {
         let Some(JsonValue::Number(importance)) = params.get("importance") else {
             return Err(RenderError::BadParams);

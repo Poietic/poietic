@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc};
 
 use crate::html::{HtmlElement, HtmlError};
 
@@ -20,6 +20,16 @@ impl From<HtmlError> for RenderError {
 pub type RenderParams = HashMap<String, serde_json::Value>;
 pub type RenderResult = Result<HtmlElement, RenderError>;
 
-pub trait Component: Send + Sync {
+pub trait SyncComponent: Send + Sync {
     fn render(&self, params: RenderParams) -> RenderResult;
+}
+
+pub trait AsyncComponent: Send + Sync {
+    fn render(&self, params: RenderParams) -> Pin<Box<dyn Future<Output = RenderResult>>>;
+}
+
+#[derive(Clone)]
+pub enum Component {
+    Sync(Arc<dyn SyncComponent>),
+    Async(Arc<dyn AsyncComponent>),
 }

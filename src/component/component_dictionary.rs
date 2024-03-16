@@ -11,11 +11,11 @@ use super::{
 };
 
 pub struct ComponentNamespace {
-    components: HashMap<String, Arc<dyn Component>>,
+    components: HashMap<String, Component>,
 }
 
 impl ComponentNamespace {
-    pub fn new(components: HashMap<String, Arc<dyn Component>>) -> Self {
+    pub fn new(components: HashMap<String, Component>) -> Self {
         Self { components }
     }
 }
@@ -41,9 +41,15 @@ pub enum ComponentLookupError {
 }
 
 fn create_component_dictionary() -> RwLock<ComponentDictionary> {
-    let builtin_components: &[(String, Arc<dyn Component>)] = &[
-        ("Heading".to_string(), Arc::new(Heading::default())),
-        ("Paragraph".to_string(), Arc::new(Paragraph::default())),
+    let builtin_components: &[(String, Component)] = &[
+        (
+            "Heading".to_string(),
+            Component::Sync(Arc::new(Heading::default())),
+        ),
+        (
+            "Paragraph".to_string(),
+            Component::Sync(Arc::new(Paragraph::default())),
+        ),
     ];
     let poietic_namespace = ComponentNamespace::new(builtin_components.iter().cloned().collect());
     RwLock::new(ComponentDictionary::new(
@@ -51,7 +57,7 @@ fn create_component_dictionary() -> RwLock<ComponentDictionary> {
     ))
 }
 
-pub async fn get_component(name: &str) -> Result<Arc<dyn Component>, ComponentLookupError> {
+pub async fn get_component(name: &str) -> Result<Component, ComponentLookupError> {
     let Some((namespace_name, component_name)) = name.split_once(':') else {
         return Err(ComponentLookupError::BadComponentName);
     };

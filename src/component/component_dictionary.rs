@@ -6,7 +6,7 @@ use std::{
 use tokio::sync::RwLock;
 
 use super::{
-    builtins::{ComponentList, Heading, Paragraph},
+    builtins::{component_list::ComponentList, heading::Heading, paragraph::Paragraph},
     Component,
 };
 

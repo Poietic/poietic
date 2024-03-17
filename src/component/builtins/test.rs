@@ -3,26 +3,26 @@ use crate::component::{render_composition, JsonValue};
 #[tokio::test]
 async fn composition_rendering() {
     let composition: JsonValue = serde_json::from_str(
-        "{
-            \"component\": \"poietic:ComponentList\",
-            \"params\": {
-                \"children\": [
+        r#"{
+            "component": "poietic:ComponentList",
+            "params": {
+                "children": [
                     {
-                        \"component\": \"poietic:Heading\",
-                        \"params\": {
-                            \"importance\": 1,
-                            \"text\": \"Lorem ipsum\"
+                        "component": "poietic:Heading",
+                        "params": {
+                            "importance": 1,
+                            "text": "Lorem ipsum"
                         }
                     },
                     {
-                        \"component\": \"poietic:Paragraph\",
-                        \"params\": {
-                            \"content\": \"Lorem ipsum, dolor sit amet.\"
+                        "component": "poietic:Paragraph",
+                        "params": {
+                            "content": "Lorem ipsum, dolor sit amet."
                         }
                     }
                 ]
             }
-        }",
+        }"#,
     )
     .unwrap();
     let expected_output =

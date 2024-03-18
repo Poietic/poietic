@@ -11,7 +11,6 @@ impl TextNode {
         self.text
             .replace('<', "&lt;")
             .replace('>', "&gt;")
-            .replace(' ', "&nbsp;")
     }
 }
 
@@ -24,12 +23,5 @@ mod test {
         let text = "<div>EvilInjection</div>".to_string();
         let escaped = TextNode::new(text).dump_html();
         assert_eq!("&lt;div&gt;EvilInjection&lt;/div&gt;", escaped);
-    }
-
-    #[test]
-    fn non_breaking_spaces() {
-        let text = " ".to_string();
-        let escaped = TextNode::new(text).dump_html();
-        assert_eq!("&nbsp;", escaped);
     }
 }

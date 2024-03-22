@@ -1,8 +1,14 @@
 use actix_web::{
-    web::{route, scope, Path}, App, HttpResponse, HttpServer, Responder, Route, Scope
+    web::{route, scope, Path},
+    App, HttpResponse, HttpServer, Responder, Route, Scope,
 };
 
-use crate::{component::render_composition, config::get_config, database::{data_access::{composition::get_composition_from_page, page::get_page_at_path}, database_error::DatabaseError}, error::PoieticError};
+use crate::{
+    component::render_composition,
+    config::get_config,
+    database::data_access::{composition::get_composition_from_page, page::get_page_at_path},
+    error::PoieticError,
+};
 
 #[actix_web::post("{namespace}/{api_function}")]
 async fn api_route_service(path: Path<(String, String)>) -> impl Responder {

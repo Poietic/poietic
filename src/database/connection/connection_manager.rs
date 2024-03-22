@@ -10,6 +10,8 @@ use super::ConnectionHandle;
 
 pub mod pooled;
 pub mod unpooled;
+#[cfg(test)]
+pub mod test;
 
 #[derive(Debug, Clone)]
 pub enum ConnectionManager {

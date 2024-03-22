@@ -2,25 +2,13 @@ use serde_json::Map;
 pub use serde_json::Value as JsonValue;
 use std::{future::Future, pin::Pin, sync::Arc};
 
-use crate::html::{HtmlElement, HtmlError};
+use crate::html::HtmlElement;
 
-use self::component_dictionary::get_component;
+use self::{component_dictionary::get_component, render_error::RenderError};
 
 mod builtins;
 mod component_dictionary;
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum RenderError {
-    BadParams,
-    HtmlError(HtmlError),
-    Unknown,
-}
-
-impl From<HtmlError> for RenderError {
-    fn from(html_error: HtmlError) -> Self {
-        Self::HtmlError(html_error)
-    }
-}
+pub mod render_error;
 
 pub type RenderParams = Map<String, JsonValue>;
 pub type RenderResult = Result<HtmlElement, RenderError>;

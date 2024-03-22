@@ -4,6 +4,7 @@ use tokio::task::{JoinError, JoinSet};
 mod component;
 mod config;
 mod database;
+mod error;
 mod html;
 mod server;
 

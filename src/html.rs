@@ -1,9 +1,11 @@
+mod html_error;
 mod html_node;
 mod html_safety;
 mod text_node;
 
 pub use self::html_node::HtmlNode;
 pub use self::text_node::TextNode;
+pub use self::html_error::HtmlError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum HtmlElement {
@@ -18,10 +20,4 @@ impl HtmlElement {
             HtmlElement::Text(text_node) => text_node.dump_html(),
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum HtmlError {
-    IllegalTag,
-    IllegalAttributeName,
 }

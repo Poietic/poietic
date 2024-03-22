@@ -6,7 +6,7 @@ use super::{database_config::DatabaseConfig, http_server_config::HttpServerConfi
 
 #[derive(Clone, Deserialize)]
 pub struct BaseConfig {
-    pub client: HttpServerConfig,
+    pub public: HttpServerConfig,
     pub admin: HttpServerConfig,
     pub database: DatabaseConfig
 }

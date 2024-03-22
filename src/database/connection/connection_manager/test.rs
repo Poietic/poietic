@@ -5,8 +5,6 @@ use std::{
 
 use tokio::fs;
 
-use crate::database::connection::get_database_connection;
-
 use super::{ConnectionManager, CONNECTION_MANAGER};
 
 pub async fn setup_test_database() {
@@ -28,10 +26,4 @@ pub async fn setup_test_database() {
 #[tokio::test]
 async fn test_database_setup() {
     setup_test_database().await;
-}
-
-#[tokio::test]
-async fn database_connection() {
-    setup_test_database().await;
-    get_database_connection().await.unwrap();
 }

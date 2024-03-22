@@ -1,5 +1,7 @@
 mod connection_handle;
 mod connection_manager;
+#[cfg(test)]
+mod test;
 
 pub use self::connection_handle::ConnectionHandle;
 use self::connection_manager::get_connection_manager;

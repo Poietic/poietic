@@ -19,14 +19,18 @@ impl ConnectionManager {
     async fn new(address: &str, pool_size: usize) -> Result<Arc<Self>, DatabaseError> {
         let mut connections = Vec::<Surreal<Any>>::with_capacity(pool_size);
         for _ in 0..pool_size {
-            let connection = any::connect(address).await?;
-            connections.push(connection)
+            connections.push(Self::create_connection(address).await?)
         }
         let connection_manager = Self {
             connections: Mutex::new(connections),
             address: address.to_string(),
         };
         Ok(Arc::new(connection_manager))
+    }
+    async fn create_connection(address: &str) -> Result<Surreal<Any>, DatabaseError> {
+        let connection = any::connect(address).await?;
+        connection.use_ns("poietic").use_db("poietic").await?;
+        Ok(connection)
     }
     async fn get_connection(self: Arc<Self>) -> Result<ConnectionHandle, DatabaseError> {
         let connection_handle = match self.connections.lock().await.pop() {
@@ -35,15 +39,22 @@ impl ConnectionManager {
                 connection_manager: Some(self.clone()),
             },
             None => ConnectionHandle {
-                connection: any::connect(&self.address).await?,
+                connection: Self::create_connection(&self.address).await?,
                 connection_manager: None,
             },
         };
         Ok(connection_handle)
     }
-    fn put_connection(self: Arc<Self>, connection: Surreal<Any>) {
+    fn release_connection(self: Arc<Self>, connection: Surreal<Any>) {
         let self_clone = self.clone();
-        tokio::spawn(async move { self_clone.connections.lock().await.push(connection) });
+        tokio::spawn(async move {
+            let connection = match connection.health().await {
+                Ok(()) => connection,
+                Err(_) => Self::create_connection(&self_clone.address).await?,
+            };
+            self_clone.connections.lock().await.push(connection);
+            Ok::<(), DatabaseError>(())
+        });
     }
 }
 
@@ -62,7 +73,9 @@ impl Deref for ConnectionHandle {
 impl Drop for ConnectionHandle {
     fn drop(&mut self) {
         match self.connection_manager.clone() {
-            Some(connection_manager) => connection_manager.put_connection(self.connection.clone()),
+            Some(connection_manager) => {
+                connection_manager.release_connection(self.connection.clone())
+            }
             None => {}
         }
     }
@@ -71,7 +84,9 @@ impl Drop for ConnectionHandle {
 static CONNECTION_MANAGER: OnceCell<Arc<ConnectionManager>> = OnceCell::const_new();
 
 async fn create_connection_manager() -> Arc<ConnectionManager> {
-    ConnectionManager::new(&get_config().database.address, 4).await.unwrap()
+    ConnectionManager::new(&get_config().database.address, 4)
+        .await
+        .unwrap()
 }
 
 async fn get_connection_manager() -> Arc<ConnectionManager> {

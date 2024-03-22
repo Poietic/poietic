@@ -1,4 +1,4 @@
-use std::{collections::HashSet, sync::OnceLock};
+use std::{collections::HashSet, hash::Hash, sync::{Once, OnceLock}};
 
 const SAFE_HTML_TAGS: &[&str] = &[
     "a",
@@ -97,10 +97,88 @@ const SAFE_HTML_TAGS: &[&str] = &[
     "wbr",
 ];
 
+pub const ATTRIBUTE_BLACKLIST: &[&str] = &[
+    "async",
+    "crossorigin",
+    "formaction",
+    "onabort",
+    "onblur",
+    "oncanplay",
+    "oncanplaythrough",
+    "onchange",
+    "onclick",
+    "oncontextmenu",
+    "ondblclick",
+    "ondrag",
+    "ondragend",
+    "ondragenter",
+    "ondragleave",
+    "ondragover",
+    "ondragstart",
+    "ondrop",
+    "ondurationchange",
+    "onemptied",
+    "onended",
+    "onerror",
+    "onfocus",
+    "onformchange",
+    "onforminput",
+    "oninput",
+    "oninvalid",
+    "onkeydown",
+    "onkeypress",
+    "onload",
+    "onloadeddata",
+    "onloadedmetadata",
+    "onloadstart",
+    "onmousedown",
+    "onmouseenter",
+    "onmouseleave",
+    "onmousemove",
+    "onmouseout",
+    "onmouseover",
+    "onmouseup",
+    "onmousewheel",
+    "onpause",
+    "onplay",
+    "onplaying",
+    "onpointercancel",
+    "onpointerdown",
+    "onpointerenter",
+    "onpointerleave",
+    "onpointerlockchange",
+    "onpointererror",
+    "onpointermove",
+    "onpointerout",
+    "onpointerover",
+    "onpointerup",
+    "onprogress",
+    "onratechange",
+    "onreadystatechange",
+    "onreset",
+    "onresize",
+    "onscroll",
+    "onseeked",
+    "onseeking",
+    "onselect",
+    "onshow",
+    "onstalled",
+    "onsubmit",
+    "onsuspend",
+    "ontimeupdate",
+    "onvolumechange",
+    "onwaiting"
+];
+
 static SAFE_HTML_TAG_SET: OnceLock<HashSet<&str>> = OnceLock::new();
+static ATTRIBUTE_BLACKLIST_SET: OnceLock<HashSet<&str>> = OnceLock::new();
 
 pub fn get_safe_html_tag_set() -> &'static HashSet<&'static str> {
     SAFE_HTML_TAG_SET.get_or_init(|| SAFE_HTML_TAGS.iter().cloned().collect())
+}
+
+pub fn get_attribute_blacklist() -> &'static HashSet<&'static str> {
+    ATTRIBUTE_BLACKLIST_SET.get_or_init(|| ATTRIBUTE_BLACKLIST.iter().cloned().collect())
 }
 
 pub const ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS: &[char] = &['\0', '\'', '"', '<', '>', '/', '='];

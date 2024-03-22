@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{
-    html_safety::{get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
+    html_safety::{get_attribute_blacklist, get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
     HtmlElement, HtmlError,
 };
 
@@ -44,6 +44,7 @@ impl HtmlNode {
                     || character.is_whitespace()
                     || ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS.contains(&character)
             })
+            || get_attribute_blacklist().contains(name)
         {
             return Err(HtmlError::IllegalAttributeName);
         }
@@ -72,7 +73,7 @@ impl HtmlNode {
 
 #[cfg(test)]
 mod test {
-    use crate::html::{html_node::HtmlError, HtmlNode};
+    use crate::html::{html_node::HtmlError, html_safety::ATTRIBUTE_BLACKLIST, HtmlNode};
 
     #[test]
     fn create_html_node() {
@@ -85,6 +86,7 @@ mod test {
         let text = "Lorem ipsum\">Evil injection<div attr=\"";
         let escaped = HtmlNode::escape_attribute_value(text);
         assert_eq!("Lorem ipsum\\\">Evil injection<div attr=\\\"", escaped);
+
         let text = "Lorem ipsum\\\">Evil injection<div attr=\\\"";
         let escaped = HtmlNode::escape_attribute_value(text);
         assert_eq!(
@@ -103,6 +105,13 @@ mod test {
     #[test]
     fn unsafe_attribute_name() {
         for attribute_name in ["", "\"", "'", "a/", "x=", ">", "\0", "<"] {
+            assert_eq!(
+                Err(HtmlError::IllegalAttributeName),
+                HtmlNode::validate_attribute_name(attribute_name)
+            );
+        }
+
+        for attribute_name in ATTRIBUTE_BLACKLIST.iter().cloned() {
             assert_eq!(
                 Err(HtmlError::IllegalAttributeName),
                 HtmlNode::validate_attribute_name(attribute_name)

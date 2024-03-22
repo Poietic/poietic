@@ -1,9 +1,8 @@
 use actix_web::{
-    web::{route, scope, Path},
-    App, HttpResponse, HttpServer, Responder, Route, Scope,
+    web::{route, scope, Path}, App, HttpResponse, HttpServer, Responder, Route, Scope
 };
 
-use crate::config::get_config;
+use crate::{component::render_composition, config::get_config, database::{data_access::{composition::get_composition_from_page, page::get_page_at_path}, database_error::DatabaseError}, error::PoieticError};
 
 #[actix_web::post("{namespace}/{api_function}")]
 async fn api_route_service(path: Path<(String, String)>) -> impl Responder {
@@ -23,10 +22,13 @@ fn create_api_scope() -> Scope {
 }
 
 #[actix_web::get("{page_path:.*}")]
-async fn page_route_service(path: Path<String>) -> impl Responder {
+async fn page_route_service(path: Path<String>) -> Result<impl Responder, PoieticError> {
     let page_path = path.into_inner();
-    todo!("Handle page routes");
-    ""
+    let page = get_page_at_path(&page_path).await?;
+    let composition = get_composition_from_page(&page).await?;
+    let rendered_tree = render_composition(composition.content).await?;
+    let output_html = rendered_tree.dump_html();
+    Ok(output_html)
 }
 
 pub async fn start_public_http_server() {

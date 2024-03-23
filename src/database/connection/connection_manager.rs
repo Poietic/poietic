@@ -15,7 +15,7 @@ pub mod test;
 
 #[derive(Debug, Clone)]
 pub enum ConnectionManager {
-    Pooled(Arc<PooledConnectionManager>),
+    Pooled(PooledConnectionManager),
     Unpooled(UnpooledConnectionManager),
 }
 
@@ -31,8 +31,8 @@ impl ConnectionManager {
     }
     pub async fn get_connection(&self) -> Result<ConnectionHandle, DatabaseError> {
         match self {
-            Self::Pooled(pooled) => pooled.clone().get_connection().await,
-            Self::Unpooled(unpooled) => unpooled.get_connection(),
+            Self::Pooled(pooled) => pooled.get_connection().await,
+            Self::Unpooled(unpooled) => unpooled.get_connection().await,
         }
     }
 }

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::VecDeque, sync::Arc};
 
 use surrealdb::{
     engine::any::{self, Any},
@@ -12,15 +12,15 @@ use crate::database::{
 
 #[derive(Debug, Clone)]
 pub struct PooledConnectionManager {
-    connections: Arc<Mutex<Vec<Surreal<Any>>>>,
+    connections: Arc<Mutex<VecDeque<Surreal<Any>>>>,
     address: Arc<str>,
 }
 
 impl PooledConnectionManager {
     pub async fn new(address: &str, pool_size: usize) -> Result<Self, DatabaseError> {
-        let mut connections = Vec::<Surreal<Any>>::with_capacity(pool_size);
+        let mut connections = VecDeque::<Surreal<Any>>::with_capacity(pool_size);
         for _ in 0..pool_size {
-            connections.push(Self::create_connection(address).await?)
+            connections.push_back(Self::create_connection(address).await?)
         }
         let connection_manager = PooledConnectionManager {
             connections: Arc::new(Mutex::new(connections)),
@@ -29,7 +29,7 @@ impl PooledConnectionManager {
         Ok(connection_manager)
     }
     pub async fn get_connection(&self) -> Result<ConnectionHandle, DatabaseError> {
-        let connection_handle = match self.connections.lock().await.pop() {
+        let connection_handle = match self.connections.lock().await.pop_front() {
             Some(connection) => {
                 let connection = match connection.health().await {
                     Ok(()) => connection,
@@ -57,6 +57,6 @@ impl PooledConnectionManager {
         self,
         connection: Surreal<Any>,
     ) {
-        self.connections.lock().await.push(connection);
+        self.connections.lock().await.push_back(connection);
     }
 }

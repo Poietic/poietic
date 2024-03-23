@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
 use tokio::sync::OnceCell;
 
 use crate::{config::get_config, database::database_error::DatabaseError};
 
 use self::{pooled::PooledConnectionManager, unpooled::UnpooledConnectionManager};
 
-use super::ConnectionHandle;
+use super::connection_handle::ConnectionHandle;
 
 pub mod pooled;
 pub mod unpooled;
@@ -15,7 +13,7 @@ pub mod test;
 
 #[derive(Debug, Clone)]
 pub enum ConnectionManager {
-    Pooled(Arc<PooledConnectionManager>),
+    Pooled(PooledConnectionManager),
     Unpooled(UnpooledConnectionManager),
 }
 
@@ -31,8 +29,8 @@ impl ConnectionManager {
     }
     pub async fn get_connection(&self) -> Result<ConnectionHandle, DatabaseError> {
         match self {
-            Self::Pooled(pooled) => pooled.clone().get_connection().await,
-            Self::Unpooled(unpooled) => unpooled.get_connection(),
+            Self::Pooled(pooled) => pooled.get_connection().await,
+            Self::Unpooled(unpooled) => unpooled.get_connection().await,
         }
     }
 }

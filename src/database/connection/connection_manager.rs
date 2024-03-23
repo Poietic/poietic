@@ -1,12 +1,10 @@
-use std::sync::Arc;
-
 use tokio::sync::OnceCell;
 
 use crate::{config::get_config, database::database_error::DatabaseError};
 
 use self::{pooled::PooledConnectionManager, unpooled::UnpooledConnectionManager};
 
-use super::ConnectionHandle;
+use super::connection_handle::ConnectionHandle;
 
 pub mod pooled;
 pub mod unpooled;

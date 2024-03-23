@@ -10,7 +10,9 @@ use surrealdb::{
     Surreal,
 };
 
-use crate::database::{connection::ConnectionHandle, database_error::DatabaseError};
+use crate::database::{
+    connection::connection_handle::ConnectionHandle, database_error::DatabaseError,
+};
 
 #[derive(Debug, Clone)]
 pub struct UnpooledConnectionManager {

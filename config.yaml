@@ -7,8 +7,4 @@ admin:
   port: 8081
 
 database:
-  address: 127.0.0.1
-  port: 8000
-  user: root
-  password: root
-
+  address: file:///tmp/poietic.db

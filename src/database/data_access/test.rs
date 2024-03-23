@@ -1,11 +1,14 @@
 use std::time::SystemTime;
 
 use chrono::DateTime;
+use serde_json::Value;
 
 use crate::database::{
     connection::{get_database_connection, setup_test_database},
     model::{Composition, Page},
 };
+
+use super::{composition::get_composition_from_page, page::get_page_at_path};
 
 async fn create_example_composition(id: &str, content: &str) {
     let connection = get_database_connection().await.unwrap();
@@ -53,4 +56,21 @@ pub async fn prepare_example_database() {
 #[tokio::test]
 async fn example_database() {
     prepare_example_database().await;
+}
+
+#[tokio::test]
+async fn page_fetching_by_path() {
+    prepare_example_database().await;
+    let index_page = get_page_at_path("").await.unwrap();
+    assert_eq!("page:index", &index_page.id.to_string());
+    assert_eq!("composition:1", &index_page.composition.to_string());
+}
+
+#[tokio::test]
+async fn composition_fetching_by_page() {
+    prepare_example_database().await;
+    let index_page = get_page_at_path("").await.unwrap();
+    let index_composition = get_composition_from_page(&index_page).await.unwrap();
+    assert_eq!("composition:1", &index_composition.id.to_string());
+    assert_eq!(Value::from(LOREM_IPSUM_PARAGRAH), index_composition.content);
 }

@@ -13,7 +13,7 @@ use crate::database::{
 #[derive(Debug, Clone)]
 pub struct PooledConnectionManager {
     connections: Arc<Mutex<Vec<Surreal<Any>>>>,
-    address: String,
+    address: Arc<str>,
 }
 
 impl PooledConnectionManager {
@@ -24,7 +24,7 @@ impl PooledConnectionManager {
         }
         let connection_manager = PooledConnectionManager {
             connections: Arc::new(Mutex::new(connections)),
-            address: address.to_string(),
+            address: Arc::from(address),
         };
         Ok(connection_manager)
     }

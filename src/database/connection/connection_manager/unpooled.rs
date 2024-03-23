@@ -17,7 +17,7 @@ use crate::database::{
 #[derive(Debug, Clone)]
 pub struct UnpooledConnectionManager {
     connection: Arc<Mutex<Option<Surreal<Any>>>>,
-    address: String,
+    address: Arc<str>,
 }
 
 impl UnpooledConnectionManager {
@@ -26,7 +26,7 @@ impl UnpooledConnectionManager {
         connection.use_ns("poietic").use_db("poietic").await?;
         let connection_manager = Self {
             connection: Arc::new(Mutex::new(Some(connection))),
-            address: address.to_string(),
+            address: Arc::from(address),
         };
         Ok(connection_manager)
     }
@@ -34,7 +34,7 @@ impl UnpooledConnectionManager {
         let mut connection = AcquireConnection::new(self.clone()).await;
         match connection.health().await {
             Err(_) => {
-                connection = any::connect(&self.address).await?;
+                connection = any::connect(self.address.as_ref()).await?;
             }
             _ => {}
         };

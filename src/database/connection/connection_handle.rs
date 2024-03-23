@@ -6,11 +6,11 @@ use super::connection_manager::pooled::PooledConnectionManager;
 
 pub struct ConnectionHandle {
     connection_manager: Option<Arc<PooledConnectionManager>>,
-    connection: Surreal<Any>,
+    connection: Arc<Surreal<Any>>,
 }
 
 impl ConnectionHandle {
-    pub fn new(connection_manager: Option<Arc<PooledConnectionManager>>, connection: Surreal<Any>) -> Self {
+    pub fn new(connection_manager: Option<Arc<PooledConnectionManager>>, connection: Arc<Surreal<Any>>) -> Self {
         Self { connection_manager, connection }
     }
 }

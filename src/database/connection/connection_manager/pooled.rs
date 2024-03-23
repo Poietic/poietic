@@ -10,13 +10,13 @@ use crate::database::{connection::connection_handle::ConnectionHandle, database_
 
 #[derive(Debug)]
 pub struct PooledConnectionManager {
-    connections: Mutex<Vec<Surreal<Any>>>,
+    connections: Mutex<Vec<Arc<Surreal<Any>>>>,
     address: String,
 }
 
 impl PooledConnectionManager {
     pub async fn new(address: &str, pool_size: usize) -> Result<Arc<Self>, DatabaseError> {
-        let mut connections = Vec::<Surreal<Any>>::with_capacity(pool_size);
+        let mut connections = Vec::<Arc<Surreal<Any>>>::with_capacity(pool_size);
         for _ in 0..pool_size {
             connections.push(Self::create_connection(address).await?)
         }
@@ -33,12 +33,12 @@ impl PooledConnectionManager {
         };
         Ok(connection_handle)
     }
-    async fn create_connection(address: &str) -> Result<Surreal<Any>, DatabaseError> {
+    async fn create_connection(address: &str) -> Result<Arc<Surreal<Any>>, DatabaseError> {
         let connection = any::connect(address).await?;
         connection.use_ns("poietic").use_db("poietic").await?;
-        Ok(connection)
+        Ok(Arc::new(connection))
     }
-    pub(in crate::database::connection) fn release_connection(self: Arc<Self>, connection: Surreal<Any>) {
+    pub(in crate::database::connection) fn release_connection(self: Arc<Self>, connection: Arc<Surreal<Any>>) {
         let self_clone = self.clone();
         tokio::spawn(async move {
             let connection = match connection.health().await {

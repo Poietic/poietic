@@ -6,7 +6,10 @@ use actix_web::{
     App,
 };
 use poietic::{
-    database::{connection::connection_manager::ConnectionManager, model::{Composition, Page}},
+    database::{
+        connection::connection_manager::ConnectionManager,
+        model::{Composition, Page},
+    },
     server::admin::{
         api::{
             CreateCompositionRequestBody, CreateCompositionResponseBody, CreatePageRequestBody,
@@ -22,6 +25,13 @@ async fn create_test_database() -> ConnectionManager {
     ConnectionManager::new("mem://", None).await.unwrap()
 }
 
+const LOREM_PARAGRAPH: &str = r#"{
+    "component": "poitic:Paragraph",
+    "params": {
+        "content": "Lorem ipsum, dolor sit amet."
+    }
+}"#;
+
 #[actix_web::test]
 async fn composition_creation() {
     let connection_manager = create_test_database().await;
@@ -31,15 +41,7 @@ async fn composition_creation() {
             .configure(configure_admin_app),
     )
     .await;
-    let composition_content = serde_json::from_str::<Value>(
-        r#"{
-            "component": "poitic:Paragraph",
-            "params": {
-                "content": "Lorem ipsum, dolor sit amet."
-            }
-        }"#,
-    )
-    .unwrap();
+    let composition_content = serde_json::from_str::<Value>(LOREM_PARAGRAPH).unwrap();
     let request = TestRequest::post()
         .uri("/api/poietic/create-composition")
         .set_json(CreateCompositionRequestBody {
@@ -63,15 +65,7 @@ async fn page_creation() {
             .configure(configure_admin_app),
     )
     .await;
-    let composition_content = serde_json::from_str::<Value>(
-        r#"{
-            "component": "poitic:Paragraph",
-            "params": {
-                "content": "Lorem ipsum, dolor sit amet."
-            }
-        }"#,
-    )
-    .unwrap();
+    let composition_content = serde_json::from_str::<Value>(LOREM_PARAGRAPH).unwrap();
     let composition_request = TestRequest::post()
         .uri("/api/poietic/create-composition")
         .set_json(CreateCompositionRequestBody {

@@ -1,5 +1,3 @@
-use tokio::sync::OnceCell;
-
 use crate::{config::get_config, database::database_error::DatabaseError};
 
 use self::{pooled::PooledConnectionManager, unpooled::UnpooledConnectionManager};
@@ -35,17 +33,9 @@ impl ConnectionManager {
     }
 }
 
-pub static CONNECTION_MANAGER: OnceCell<ConnectionManager> = OnceCell::const_new();
-
 pub async fn create_connection_manager() -> ConnectionManager {
     let config = &get_config().database;
     ConnectionManager::new(&config.address, config.pool_size)
         .await
         .unwrap()
-}
-
-pub async fn get_connection_manager() -> &'static ConnectionManager {
-    CONNECTION_MANAGER
-        .get_or_init(create_connection_manager)
-        .await
 }

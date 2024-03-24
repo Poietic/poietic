@@ -40,28 +40,6 @@ impl ConnectionHandle {
             connection,
         })
     }
-    pub async fn release_connection(&mut self) {
-        match self {
-            ConnectionHandle::Pooled(pooled) => match pooled.connection_manager.take() {
-                Some(connection_manager) => {
-                    connection_manager
-                        .clone()
-                        .release_connection_async(pooled.connection.clone())
-                        .await;
-                }
-                None => {}
-            },
-            ConnectionHandle::Unpooled(unpooled) => match unpooled.connection_manager.take() {
-                Some(connection_manager) => {
-                    connection_manager
-                        .clone()
-                        .release_connection_async(unpooled.connection.clone())
-                        .await;
-                }
-                None => {}
-            },
-        }
-    }
 }
 
 impl Deref for ConnectionHandle {

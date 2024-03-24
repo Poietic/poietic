@@ -1,13 +1,17 @@
-use actix_web::{App, HttpServer};
+use actix_web::{
+    web::{route, ServiceConfig},
+    HttpResponse, Route,
+};
 
-use crate::config::get_config;
+pub mod api;
+use self::api::create_api_scope;
 
-pub async fn start_admin_http_server() {
-    let config = &get_config().admin;
-    HttpServer::new(|| App::new())
-        .bind((config.address, config.port))
-        .unwrap()
-        .run()
-        .await
-        .unwrap();
+fn create_404_handler() -> Route {
+    route().to(HttpResponse::NotFound)
+}
+
+pub fn configure_admin_app(config: &mut ServiceConfig) {
+    config
+        .service(create_api_scope())
+        .default_service(create_404_handler());
 }

@@ -1,9 +1,7 @@
 use actix_web::{post, web::{route, scope, Path}, HttpResponse, Responder, Route, Scope};
 
-mod create_composition;
-pub use create_composition::*;
-mod create_page;
-pub use create_page::*;
+pub mod create_composition;
+pub mod create_page;
 
 #[post("/{namespace}/{api_function}")]
 pub async fn api_route_service(path: Path<(String, String)>) -> impl Responder {
@@ -18,8 +16,8 @@ fn create_404_handler() -> Route {
 
 pub fn create_api_scope() -> Scope {
     scope("/api")
-        .service(create_composition)
-        .service(create_page)
+        .service(create_composition::create_composition)
+        .service(create_page::create_page)
         .service(api_route_service)
         .default_service(create_404_handler())
 }

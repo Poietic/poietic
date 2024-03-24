@@ -12,8 +12,8 @@ use poietic::{
     },
     server::admin::{
         api::{
-            CreateCompositionRequestBody, CreateCompositionResponseBody, CreatePageRequestBody,
-            CreatePageResponseBody,
+            create_composition::{CreateCompositionRequestBody, CreateCompositionResponseBody},
+            create_page::{CreatePageRequestBody, CreatePageResponseBody},
         },
         configure_admin_app,
     },

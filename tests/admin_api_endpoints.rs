@@ -26,7 +26,7 @@ async fn create_test_database() -> ConnectionManager {
 }
 
 const LOREM_PARAGRAPH: &str = r#"{
-    "component": "poitic:Paragraph",
+    "component": "poietic:Paragraph",
     "params": {
         "content": "Lorem ipsum, dolor sit amet."
     }

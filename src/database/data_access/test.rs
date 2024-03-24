@@ -6,8 +6,8 @@ use surrealdb::sql::Thing;
 
 use crate::database::{
     connection::connection_manager::{test::create_test_mem_database, ConnectionManager},
-    data_access::composition::get_composition_from_page_on_connection,
-    data_access::page::get_page_at_path_on_connection,
+    data_access::composition::get_composition_from_page,
+    data_access::page::get_page_at_path,
     model::{Composition, Page},
 };
 
@@ -80,10 +80,7 @@ async fn example_database() {
 #[tokio::test]
 async fn page_fetching_by_path() {
     let connection_manager = prepare_example_database().await;
-    let index_page =
-        get_page_at_path_on_connection(connection_manager.get_connection().await.unwrap(), "")
-            .await
-            .unwrap();
+    let index_page = get_page_at_path(&connection_manager, "").await.unwrap();
     assert_eq!("page:index", &index_page.id.to_string());
     assert_eq!(Thing::from(("composition", "1")), index_page.composition);
 }
@@ -96,12 +93,9 @@ async fn composition_fetching_by_page() {
         composition: Thing::from(("composition", "1")),
         path: "".to_string(),
     };
-    let index_composition = get_composition_from_page_on_connection(
-        connection_manager.get_connection().await.unwrap(),
-        &index_page,
-    )
-    .await
-    .unwrap();
+    let index_composition = get_composition_from_page(&connection_manager, &index_page)
+        .await
+        .unwrap();
     assert_eq!(Thing::from(("composition", "1")), index_composition.id);
     assert_eq!(Value::from(LOREM_IPSUM_PARAGRAH), index_composition.content);
 }

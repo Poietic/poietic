@@ -3,15 +3,14 @@ use std::str::FromStr;
 use surrealdb::sql::{Id, Thing};
 
 use crate::database::{
-    connection::{connection_handle::ConnectionHandle, connection_manager::get_connection_manager},
-    database_error::DatabaseError,
-    model::Page,
+    connection::connection_manager::ConnectionManager, database_error::DatabaseError, model::Page,
 };
 
-pub(super) async fn get_page_at_path_on_connection(
-    connection: ConnectionHandle,
+pub async fn get_page_at_path(
+    connection_manager: &ConnectionManager,
     path: &str,
 ) -> Result<Page, DatabaseError> {
+    let connection = connection_manager.get_connection().await?;
     let page: Option<Page> = connection
         .query("SELECT * FROM page WHERE path = $path")
         .bind(("path", path))
@@ -23,16 +22,12 @@ pub(super) async fn get_page_at_path_on_connection(
     }
 }
 
-pub async fn get_page_at_path(path: &str) -> Result<Page, DatabaseError> {
-    let connection = get_connection_manager().await.get_connection().await?;
-    get_page_at_path_on_connection(connection, path).await
-}
-
-pub(super) async fn create_page_on_connection(
-    connection: ConnectionHandle,
+pub async fn create_page(
+    connection_manager: &ConnectionManager,
     path: String,
     composition_id: String,
 ) -> Result<Page, DatabaseError> {
+    let connection = connection_manager.get_connection().await?;
     let id = Thing::from(("page", Id::ulid()));
     let page = Page {
         id,
@@ -44,9 +39,4 @@ pub(super) async fn create_page_on_connection(
         .content(&page)
         .await?;
     Ok(page)
-}
-
-pub async fn create_page(path: String, composition_id: String) -> Result<Page, DatabaseError> {
-    let connection = get_connection_manager().await.get_connection().await?;
-    create_page_on_connection(connection, path, composition_id).await
 }

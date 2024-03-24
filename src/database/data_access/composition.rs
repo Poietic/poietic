@@ -5,15 +5,16 @@ use serde_json::Value as JsonValue;
 use surrealdb::sql::{Id, Thing};
 
 use crate::database::{
-    connection::{connection_handle::ConnectionHandle, connection_manager::get_connection_manager},
+    connection::connection_manager::ConnectionManager,
     database_error::DatabaseError,
     model::{Composition, Page},
 };
 
-pub(super) async fn get_composition_from_page_on_connection(
-    connection: ConnectionHandle,
+pub async fn get_composition_from_page(
+    connection_manager: &ConnectionManager,
     page: &Page,
 ) -> Result<Composition, DatabaseError> {
+    let connection = connection_manager.get_connection().await?;
     let page: Option<Composition> = connection.select(&page.composition).await?;
     match page {
         Some(page) => Ok(page),
@@ -21,15 +22,11 @@ pub(super) async fn get_composition_from_page_on_connection(
     }
 }
 
-pub async fn get_composition_from_page(page: &Page) -> Result<Composition, DatabaseError> {
-    let connection = get_connection_manager().await.get_connection().await?;
-    get_composition_from_page_on_connection(connection, page).await
-}
-
-pub(super) async fn create_composition_on_connection(
-    connection: ConnectionHandle,
+pub async fn create_composition(
+    connection_manager: &ConnectionManager,
     content: JsonValue,
 ) -> Result<Composition, DatabaseError> {
+    let connection = connection_manager.get_connection().await?;
     let id = Thing::from(("composition", Id::ulid()));
     let current_time = DateTime::from(SystemTime::now());
     let composition = Composition {
@@ -42,9 +39,4 @@ pub(super) async fn create_composition_on_connection(
         .content(&composition)
         .await?;
     Ok(composition)
-}
-
-pub async fn create_composition(content: JsonValue) -> Result<Composition, DatabaseError> {
-    let connection = get_connection_manager().await.get_connection().await?;
-    create_composition_on_connection(connection, content).await
 }

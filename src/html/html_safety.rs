@@ -1,4 +1,4 @@
-use std::{collections::HashSet, hash::Hash, sync::{Once, OnceLock}};
+use std::{collections::HashSet, sync::OnceLock};
 
 const SAFE_HTML_TAGS: &[&str] = &[
     "a",
@@ -167,7 +167,7 @@ pub const ATTRIBUTE_BLACKLIST: &[&str] = &[
     "onsuspend",
     "ontimeupdate",
     "onvolumechange",
-    "onwaiting"
+    "onwaiting",
 ];
 
 static SAFE_HTML_TAG_SET: OnceLock<HashSet<&str>> = OnceLock::new();

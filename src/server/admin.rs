@@ -3,20 +3,30 @@ use actix_web::{
     web::{route, scope, Json, Path},
     App, HttpResponse, HttpServer, Responder, Route, Scope,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
-use crate::config::get_config;
+use crate::{config::get_config, database, error::PoieticError};
 
 #[derive(Debug, Deserialize)]
-struct CreateCompositionBody {
+struct CreateCompositionRequestBody {
     content: JsonValue,
 }
 
+#[derive(Debug, Serialize)]
+struct CreateCompositionResponseBody {
+    id: String,
+}
+
 #[post("/poietic/create-composition")]
-async fn create_composition(body: Json<CreateCompositionBody>) -> impl Responder {
-    todo!("Create the composition");
-    HttpResponse::Ok()
+async fn create_composition(
+    body: Json<CreateCompositionRequestBody>,
+) -> Result<impl Responder, PoieticError> {
+    use database::data_access::composition::create_composition;
+    let composition = create_composition(body.content.clone()).await?;
+    Ok(HttpResponse::Ok().json(CreateCompositionResponseBody {
+        id: composition.id.to_string(),
+    }))
 }
 
 #[derive(Debug, Deserialize)]

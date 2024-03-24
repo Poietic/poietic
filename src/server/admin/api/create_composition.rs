@@ -18,8 +18,9 @@ struct CreateCompositionResponseBody {
 async fn create_composition(
     body: Json<CreateCompositionRequestBody>,
 ) -> Result<impl Responder, PoieticError> {
+    let body = body.into_inner();
     use crate::database::data_access::composition::create_composition;
-    let composition = create_composition(body.content.clone()).await?;
+    let composition = create_composition(body.content).await?;
     Ok(HttpResponse::Ok().json(CreateCompositionResponseBody {
         id: composition.id.to_string(),
     }))

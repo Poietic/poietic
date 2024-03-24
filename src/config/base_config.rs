@@ -8,21 +8,20 @@ use super::{database_config::DatabaseConfig, http_server_config::HttpServerConfi
 pub struct BaseConfig {
     pub public: HttpServerConfig,
     pub admin: HttpServerConfig,
-    pub database: DatabaseConfig
+    pub database: DatabaseConfig,
 }
 
 #[derive(Debug)]
 pub enum ConfigLoadError {
     IncorrectConfig,
-    CannotAccessFile
+    CannotAccessFile,
 }
 
 impl BaseConfig {
     pub fn load() -> Result<Self, ConfigLoadError> {
-        let contents = read_to_string("config.yaml")
-            .map_err(|_| ConfigLoadError::CannotAccessFile)?;
-        
-        serde_yaml::from_str(contents.as_str())
-            .map_err(|_| ConfigLoadError::IncorrectConfig)
+        let contents =
+            read_to_string("config.yaml").map_err(|_| ConfigLoadError::CannotAccessFile)?;
+
+        serde_yaml::from_str(contents.as_str()).map_err(|_| ConfigLoadError::IncorrectConfig)
     }
 }

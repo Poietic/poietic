@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use super::{
-    html_safety::{get_attribute_blacklist, get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS},
+    html_safety::{
+        get_attribute_blacklist, get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS,
+    },
     HtmlElement, HtmlError,
 };
 

@@ -8,9 +8,7 @@ impl TextNode {
         Self { text: text }
     }
     pub fn dump_html(&self) -> String {
-        self.text
-            .replace('<', "&lt;")
-            .replace('>', "&gt;")
+        self.text.replace('<', "&lt;").replace('>', "&gt;")
     }
 }
 

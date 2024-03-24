@@ -25,8 +25,7 @@ async fn composition_rendering() {
         }"#,
     )
     .unwrap();
-    let expected_output =
-        "<div><h1>Lorem ipsum</h1><p>Lorem ipsum, dolor sit amet.</p></div>";
+    let expected_output = "<div><h1>Lorem ipsum</h1><p>Lorem ipsum, dolor sit amet.</p></div>";
     let output = render_composition(composition).await.unwrap().dump_html();
     assert_eq!(expected_output, output);
 }

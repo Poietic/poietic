@@ -5,9 +5,9 @@ use self::{pooled::PooledConnectionManager, unpooled::UnpooledConnectionManager}
 use super::connection_handle::ConnectionHandle;
 
 pub mod pooled;
-pub mod unpooled;
 #[cfg(test)]
 pub mod test;
+pub mod unpooled;
 
 #[derive(Debug, Clone)]
 pub enum ConnectionManager {

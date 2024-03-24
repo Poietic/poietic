@@ -5,5 +5,5 @@ use serde::Deserialize;
 #[derive(Clone, Deserialize)]
 pub struct HttpServerConfig {
     pub address: IpAddr,
-    pub port: u16
+    pub port: u16,
 }

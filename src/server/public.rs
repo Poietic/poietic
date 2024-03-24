@@ -5,7 +5,10 @@ use actix_web::{
 
 use crate::{
     component::render_composition,
-    database::{connection::connection_manager::ConnectionManager, data_access::{composition::get_composition_from_page, page::get_page_at_path}},
+    database::{
+        connection::connection_manager::ConnectionManager,
+        data_access::{composition::get_composition_from_page, page::get_page_at_path},
+    },
     error::PoieticError,
 };
 
@@ -27,7 +30,10 @@ fn create_api_scope() -> Scope {
 }
 
 #[actix_web::get("/{page_path:.*}")]
-async fn page_route_service(connection_manager: Data<ConnectionManager>, page_path: Path<String>) -> Result<impl Responder, PoieticError> {
+async fn page_route_service(
+    connection_manager: Data<ConnectionManager>,
+    page_path: Path<String>,
+) -> Result<impl Responder, PoieticError> {
     let connection_manager = connection_manager.into_inner();
     let page = get_page_at_path(connection_manager.as_ref(), &page_path).await?;
     let composition = get_composition_from_page(connection_manager.as_ref(), &page).await?;

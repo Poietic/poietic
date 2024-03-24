@@ -3,9 +3,9 @@ mod html_node;
 mod html_safety;
 mod text_node;
 
+pub use self::html_error::HtmlError;
 pub use self::html_node::HtmlNode;
 pub use self::text_node::TextNode;
-pub use self::html_error::HtmlError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum HtmlElement {

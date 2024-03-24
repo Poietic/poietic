@@ -1,4 +1,8 @@
-use actix_web::{post, web::{route, scope, Path}, HttpResponse, Responder, Route, Scope};
+use actix_web::{
+    post,
+    web::{route, scope, Path},
+    HttpResponse, Responder, Route, Scope,
+};
 
 pub mod create_composition;
 pub mod create_page;

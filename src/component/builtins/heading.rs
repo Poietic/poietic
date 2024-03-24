@@ -1,4 +1,7 @@
-use crate::{component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent}, html::{HtmlElement, HtmlNode, TextNode}};
+use crate::{
+    component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent},
+    html::{HtmlElement, HtmlNode, TextNode},
+};
 
 #[derive(Default)]
 pub struct Heading;

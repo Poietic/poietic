@@ -1,4 +1,8 @@
-use actix_web::{post, web::{Data, Json}, HttpResponse, Responder};
+use actix_web::{
+    post,
+    web::{Data, Json},
+    HttpResponse, Responder,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::{database::connection::connection_manager::ConnectionManager, error::PoieticError};
@@ -15,7 +19,10 @@ pub struct CreatePageResponseBody {
 }
 
 #[post("/poietic/create-page")]
-async fn create_page(connection_manager: Data<ConnectionManager>, body: Json<CreatePageRequestBody>) -> Result<impl Responder, PoieticError> {
+async fn create_page(
+    connection_manager: Data<ConnectionManager>,
+    body: Json<CreatePageRequestBody>,
+) -> Result<impl Responder, PoieticError> {
     let body = body.into_inner();
     use crate::database::data_access::page::create_page;
     let page = create_page(connection_manager.as_ref(), body.path, body.composition_id).await?;

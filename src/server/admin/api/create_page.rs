@@ -3,15 +3,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::PoieticError;
 
-#[derive(Debug, Deserialize)]
-struct CreatePageRequestBody {
-    path: String,
-    composition_id: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreatePageRequestBody {
+    pub path: String,
+    pub composition_id: String,
 }
 
-#[derive(Debug, Serialize)]
-struct CreatePageResponseBody {
-    id: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreatePageResponseBody {
+    pub id: String,
 }
 
 #[post("/poietic/create-page")]

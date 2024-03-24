@@ -4,14 +4,14 @@ use serde_json::Value as JsonValue;
 
 use crate::error::PoieticError;
 
-#[derive(Debug, Deserialize)]
-struct CreateCompositionRequestBody {
-    content: JsonValue,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreateCompositionRequestBody {
+    pub content: JsonValue,
 }
 
-#[derive(Debug, Serialize)]
-struct CreateCompositionResponseBody {
-    id: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CreateCompositionResponseBody {
+    pub id: String,
 }
 
 #[post("/poietic/create-composition")]

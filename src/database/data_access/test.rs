@@ -21,7 +21,7 @@ async fn create_example_composition(
         .create::<Vec<Composition>>("composition")
         .content(Composition {
             id: ("composition", id).into(),
-            content: content.into(),
+            content: serde_json::from_str(content).unwrap(),
             last_modified_at: DateTime::from(SystemTime::now()).into(),
         })
         .await;

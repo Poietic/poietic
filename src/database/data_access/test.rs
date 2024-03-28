@@ -18,7 +18,7 @@ use surrealdb::sql::Thing;
 
 use crate::database::{
     connection::connection_manager::{test::create_test_mem_database, ConnectionManager},
-    data_access::composition::get_composition_from_page,
+    data_access::composition::CompositionRepository,
     data_access::page::PageRepository,
     model::{Composition, Page},
 };
@@ -105,7 +105,7 @@ async fn composition_fetching_by_page() {
         composition: Thing::from(("composition", "1")),
         path: "".to_string(),
     };
-    let index_composition = get_composition_from_page(&connection_manager, &index_page)
+    let index_composition = connection_manager.get_composition_from_page(&index_page)
         .await
         .unwrap();
     assert_eq!(Thing::from(("composition", "1")), index_composition.id);

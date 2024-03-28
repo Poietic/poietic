@@ -19,7 +19,7 @@ use surrealdb::sql::Thing;
 use crate::database::{
     connection::connection_manager::{test::create_test_mem_database, ConnectionManager},
     data_access::composition::get_composition_from_page,
-    data_access::page::get_page_at_path,
+    data_access::page::PageRepository,
     model::{Composition, Page},
 };
 
@@ -92,7 +92,7 @@ async fn example_database() {
 #[tokio::test]
 async fn page_fetching_by_path() {
     let connection_manager = prepare_example_database().await;
-    let index_page = get_page_at_path(&connection_manager, "").await.unwrap();
+    let index_page = connection_manager.get_page_at_path("").await.unwrap();
     assert_eq!("page:index", &index_page.id.to_string());
     assert_eq!(Thing::from(("composition", "1")), index_page.composition);
 }

@@ -105,9 +105,13 @@ async fn composition_fetching_by_page() {
         composition: Thing::from(("composition", "1")),
         path: "".to_string(),
     };
-    let index_composition = connection_manager.get_composition_from_page(&index_page)
+    let index_composition = connection_manager
+        .get_composition_from_page(&index_page)
         .await
         .unwrap();
     assert_eq!(Thing::from(("composition", "1")), index_composition.id);
-    assert_eq!(Value::from(LOREM_IPSUM_PARAGRAH), index_composition.content);
+    assert_eq!(
+        serde_json::from_str::<Value>(LOREM_IPSUM_PARAGRAH).unwrap(),
+        index_composition.content
+    );
 }

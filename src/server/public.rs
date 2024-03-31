@@ -19,7 +19,7 @@ use crate::{
     component::render_composition,
     database::{
         connection::connection_manager::ConnectionManager,
-        data_access::{composition::get_composition_from_page, page::get_page_at_path},
+        data_access::{composition::CompositionRepository, page::PageRepository},
     },
     error::PoieticError,
 };
@@ -47,8 +47,8 @@ async fn page_route_service(
     page_path: Path<String>,
 ) -> Result<impl Responder, PoieticError> {
     let connection_manager = connection_manager.into_inner();
-    let page = get_page_at_path(connection_manager.as_ref(), &page_path).await?;
-    let composition = get_composition_from_page(connection_manager.as_ref(), &page).await?;
+    let page = connection_manager.get_page_at_path(&page_path).await?;
+    let composition = connection_manager.get_composition_from_page(&page).await?;
     let rendered_tree = render_composition(composition.content).await?;
     let output_html = rendered_tree.dump_html();
     Ok(output_html)

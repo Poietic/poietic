@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
 use crate::{database::connection::connection_manager::ConnectionManager, error::PoieticError};
+use crate::database::data_access::composition::CompositionRepository;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct CreateCompositionRequestBody {
@@ -36,8 +37,7 @@ async fn create_composition(
     body: Json<CreateCompositionRequestBody>,
 ) -> Result<impl Responder, PoieticError> {
     let body = body.into_inner();
-    use crate::database::data_access::composition::create_composition;
-    let composition = create_composition(&connection_manager, body.content).await?;
+    let composition = connection_manager.create_composition(body.content).await?;
     Ok(HttpResponse::Ok().json(CreateCompositionResponseBody {
         id: composition.id.to_string(),
     }))

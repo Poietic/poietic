@@ -13,18 +13,20 @@
 use std::str::FromStr;
 
 use surrealdb::sql::{Id, Thing};
+use std::future::Future;
 
 use crate::database::{
     connection::connection_manager::ConnectionManager, database_error::DatabaseError, model::Page,
 };
 
 pub trait PageRepository {
-    fn get_page_at_path(&self, path: &str) -> impl std::future::Future<Output = Result<Page, DatabaseError>> + Send;
+    fn get_page_at_path(&self, path: &str) -> impl Future<Output = Result<Page, DatabaseError>> + Send;
+    
     fn create_page(
         &self,
         path: String,
         composition_id: String,
-    ) -> impl std::future::Future<Output = Result<Page, DatabaseError>> + Send;
+    ) -> impl Future<Output = Result<Page, DatabaseError>> + Send;
 }
 
 impl PageRepository for ConnectionManager {

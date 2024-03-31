@@ -15,6 +15,7 @@ use std::time::SystemTime;
 use chrono::DateTime;
 use serde_json::Value as JsonValue;
 use surrealdb::sql::{Id, Thing};
+use std::future::Future;
 
 use crate::database::{
     connection::connection_manager::ConnectionManager,
@@ -26,12 +27,12 @@ pub trait CompositionRepository {
     fn get_composition_from_page(
         &self,
         page: &Page,
-    ) -> impl std::future::Future<Output = Result<Composition, DatabaseError>> + Send;
+    ) -> impl Future<Output = Result<Composition, DatabaseError>> + Send;
 
     fn create_composition(
         &self,
         content: JsonValue,
-    ) -> impl std::future::Future<Output = Result<Composition, DatabaseError>> + Send;
+    ) -> impl Future<Output = Result<Composition, DatabaseError>> + Send;
 }
 
 impl CompositionRepository for ConnectionManager {

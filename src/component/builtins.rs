@@ -10,6 +10,7 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod link;
 pub mod component_list;
 pub mod heading;
 pub mod paragraph;

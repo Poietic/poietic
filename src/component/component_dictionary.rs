@@ -66,6 +66,10 @@ fn create_component_dictionary() -> RwLock<ComponentDictionary> {
             "ComponentList".to_string(),
             Component::Async(Arc::new(ComponentList::default())),
         ),
+        (
+            "Link".to_string(),
+            Component::Async(Arc::new(Link::default()))
+        ),
     ];
     let poietic_namespace = ComponentNamespace::new(builtin_components.iter().cloned().collect());
     RwLock::new(ComponentDictionary::new(

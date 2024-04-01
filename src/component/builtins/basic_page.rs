@@ -37,13 +37,14 @@ impl AsyncComponent for BasicPage {
                 if let JsonValue::Object(obj) = nav_link {
                     if let Some(component_value) = obj.get("component") {
                         if let JsonValue::String(component_str) = component_value {
-                            if component_str != "poietic:Link" {
-                                return Err(RenderError::BadParams);
+                            if component_str == "poietic:Link" {
+                                nav_link_output.push(render_composition(nav_link.clone()).await?);
+                                continue;
                             }
                         }
                     }
                 }
-                nav_link_output.push(render_composition(nav_link.clone()).await?);
+                return Err(RenderError::BadParams);
             }
 
             let Some(JsonValue::Array(content)) = params.get("content") else {

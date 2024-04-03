@@ -1,4 +1,4 @@
-// Copyright 2024 Lech Mazur
+// Copyright 2024 Jakub Duda
 //
 // This file is part of Poietic.
 //
@@ -10,27 +10,13 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-mod html_error;
-mod html_node;
-mod html_safety;
-mod text_node;
-mod page_template;
+use super::{Link, Meta};
 
-pub use self::html_error::HtmlError;
-pub use self::html_node::HtmlNode;
-pub use self::text_node::TextNode;
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum HtmlElement {
-    Node(HtmlNode),
-    Text(TextNode),
-}
-
-impl HtmlElement {
-    pub fn dump_html(&self) -> String {
-        match self {
-            HtmlElement::Node(html_node) => html_node.dump_html(),
-            HtmlElement::Text(text_node) => text_node.dump_html(),
-        }
-    }
+pub struct PageTemplateConfig {
+    pub language: String,
+    pub custom_template: Option<String>,
+    pub title: String,
+    pub scripts: Vec<String>,
+    pub links: Vec<Link>,
+    pub meta_vec: Vec<Meta>
 }

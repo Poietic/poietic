@@ -1,4 +1,4 @@
-// Copyright 2024 Lech Mazur
+// Copyright 2024 Lech Mazur, Adam Wasiak
 //
 // This file is part of Poietic.
 //
@@ -10,6 +10,8 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod basic_page;
+pub mod link;
 pub mod component_list;
 pub mod heading;
 pub mod paragraph;

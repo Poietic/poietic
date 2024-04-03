@@ -1,4 +1,4 @@
-// Copyright 2024 Lech Mazur
+// Copyright 2024 Lech Mazur, Adam Wasiak
 //
 // This file is part of Poietic.
 //

@@ -1,4 +1,4 @@
-// Copyright 2024 Lech Mazur
+// Copyright 2024 Lech Mazur, Adam Wasiak
 //
 // This file is part of Poietic.
 //
@@ -18,7 +18,7 @@ use std::{
 use tokio::sync::RwLock;
 
 use super::{
-    builtins::{component_list::ComponentList, heading::Heading, paragraph::Paragraph},
+    builtins::{basic_page::BasicPage, component_list::ComponentList, heading::Heading, link::Link, paragraph::Paragraph},
     Component,
 };
 
@@ -65,6 +65,14 @@ fn create_component_dictionary() -> RwLock<ComponentDictionary> {
         (
             "ComponentList".to_string(),
             Component::Async(Arc::new(ComponentList::default())),
+        ),
+        (
+            "Link".to_string(),
+            Component::Async(Arc::new(Link::default()))
+        ),
+        (
+            "BasicPage".to_string(),
+            Component::Async(Arc::new(BasicPage::default()))
         ),
     ];
     let poietic_namespace = ComponentNamespace::new(builtin_components.iter().cloned().collect());

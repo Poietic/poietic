@@ -10,7 +10,8 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-mod page_template_config;
+pub mod page_template_config;
+pub mod template;
 
 use std::collections::HashMap;
 

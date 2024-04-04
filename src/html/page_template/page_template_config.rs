@@ -16,7 +16,6 @@ use super::{Link, Meta};
 
 pub struct PageTemplateConfig {
     pub language: Option<String>,
-    pub custom_template: Option<String>,
     pub title: String,
     pub scripts: Vec<String>,
     pub links: Vec<Link>,
@@ -25,7 +24,6 @@ pub struct PageTemplateConfig {
 
 pub struct PageTemplateConfigBuilder {
     language: Option<String>,
-    custom_template: Option<String>,
     title: Option<String>,
     scripts: Vec<String>,
     links: Vec<Link>,
@@ -36,7 +34,6 @@ impl PageTemplateConfigBuilder {
     pub fn new() -> Self {
         Self {
             language: None,
-            custom_template: None,
             title: None,
             scripts: vec![],
             links: vec![],
@@ -49,11 +46,6 @@ impl PageTemplateConfigBuilder {
         self
     }
 
-    pub fn custom_template(mut self, custom_template: String) -> Self {
-        self.custom_template = Some(custom_template);
-        self
-    }
-    
     pub fn title(mut self, title: String) -> Self {
         self.title = Some(title);
         self
@@ -65,6 +57,26 @@ impl PageTemplateConfigBuilder {
         self.meta_vec.push(
             Meta { attributes }
         );
+        self
+    }
+
+    pub fn script(mut self, scripts: Vec<String>) -> Self {
+        self.scripts = scripts;
+        self
+    }
+
+    pub fn links(mut self, links: Vec<Link>) -> Self {
+        self.links = links;
+        self
+    }
+
+    pub fn meta_vec(mut self, meta_vec: Vec<Meta>) -> Self {
+        self.meta_vec = meta_vec;
+        self
+    }
+
+    pub fn add_script(mut self, script: String) -> Self {
+        self.scripts.push(script);
         self
     }
     
@@ -92,7 +104,6 @@ impl PageTemplateConfigBuilder {
     pub fn build(mut self) -> Result<PageTemplateConfig, ()> {
         return Ok(PageTemplateConfig {
             language: self.language,
-            custom_template: self.custom_template,
             title: self.title.unwrap_or("".to_string()),
             scripts: self.scripts,
             links: self.links,

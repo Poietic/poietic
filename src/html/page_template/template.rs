@@ -39,7 +39,7 @@ pub fn render_page(config: PageTemplateConfig, node: HtmlNode) -> String {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     use crate::html::page_template::page_template_config::PageTemplateConfigBuilder;
 
@@ -63,7 +63,7 @@ mod test {
 
     #[test]
     fn meta_generation() {
-        let meta_tags = vec![Meta::new(HashMap::from([(
+        let meta_tags = vec![Meta::new(BTreeMap::from([(
             "charset".to_string(),
             "UTF-8".to_string(),
         )]))
@@ -79,7 +79,7 @@ mod test {
 
     #[test]
     fn link_generation() {
-        let links = vec![Link::new(HashMap::from([
+        let links = vec![Link::new(BTreeMap::from([
             ("rel".to_string(), "stylesheet".to_string()),
             ("href".to_string(), "styles.css".to_string()),
         ]))
@@ -87,9 +87,8 @@ mod test {
 
         let result = generate_links(links);
 
-        assert!(
-            &result == r#"<link rel="stylesheet" href="styles.css"/>"#
-                || &result == r#"<link href="styles.css" rel="stylesheet"/>"#
+        assert_eq!(
+            &result, r#"<link href="styles.css" rel="stylesheet"/>"#
         )
     }
 
@@ -109,7 +108,7 @@ mod test {
 
         assert_eq!(
             &render,
-            r#"<!DOCTYPE html><html lang="en"><head><title>Foo Bar</title><meta charset="UTF-8"/><link type="text/css" rel="stylesheet" href="styles.css"/></head><body><p></p><script src="main.js"></script></body></html>"#
+            r#"<!DOCTYPE html><html lang="en"><head><title>Foo Bar</title><meta charset="UTF-8"/><link href="styles.css" rel="stylesheet" type="text/css"/></head><body><p></p><script src="main.js"></script></body></html>"#
         );
     }
 
@@ -131,7 +130,7 @@ mod test {
         let evil_meta_attribute =
             r#""/><title>Evil injection!</title><meta name=""#;
 
-        let result = generate_meta(vec![Meta::new(HashMap::from([(
+        let result = generate_meta(vec![Meta::new(BTreeMap::from([(
             "charset".to_string(),
             evil_meta_attribute.to_string(),
         )]))
@@ -147,7 +146,7 @@ mod test {
     fn link_script_injection() {
         let evil_link_attribute =
             r#""/><title>Evil injection!</title><link rel=""#;
-        let result = generate_links(vec![Link::new(HashMap::from([(
+        let result = generate_links(vec![Link::new(BTreeMap::from([(
             "rel".to_string(),
             evil_link_attribute.to_string(),
         )]))

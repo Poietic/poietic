@@ -13,16 +13,16 @@
 pub mod page_template_config;
 pub mod template;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use crate::html::html_safety::EscapeHtml;
 
 pub struct Meta {
-    attributes: HashMap<String, String>,
+    attributes: BTreeMap<String, String>,
 }
 
 impl Meta {
-    pub fn new(attributes: HashMap<String, String>) -> Result<Self, ()> {
+    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, ()> {
         if attributes
             .keys()
             .any(|attr| !ALLOWED_META_ATTRIBUTES.contains(&attr.as_str()))
@@ -38,11 +38,11 @@ impl Meta {
 }
 
 pub struct Link {
-    attributes: HashMap<String, String>,
+    attributes: BTreeMap<String, String>,
 }
 
 impl Link {
-    pub fn new(attributes: HashMap<String, String>) -> Result<Self, ()> {
+    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, ()> {
         if attributes
             .keys()
             .any(|attr| !ALLOWED_LINK_ATTRIBUTES.contains(&attr.as_str()))
@@ -57,7 +57,7 @@ impl Link {
     }
 }
 
-fn dump_non_container_tag(tag_name: &str, attributes: &HashMap<String, String>) -> String {
+fn dump_non_container_tag(tag_name: &str, attributes: &BTreeMap<String, String>) -> String {
     let attributes_string = attributes
         .iter()
         .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html()))

@@ -10,7 +10,7 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::{Link, Meta};
 
@@ -52,11 +52,9 @@ impl PageTemplateConfigBuilder {
     }
     
     pub fn charset(mut self) -> Self {
-        let mut attributes = HashMap::new();
-        attributes.insert("charset".to_string(), "UTF-8".to_string());
-        self.meta_vec.push(
-            Meta { attributes }
-        );
+        self.meta_vec.push(Meta::new(BTreeMap::from([
+            ("charset".to_string(), "UTF-8".to_string())
+        ])).unwrap());
         self
     }
 
@@ -91,12 +89,12 @@ impl PageTemplateConfigBuilder {
     }
 
     pub fn add_stylesheet(mut self, href: String) -> Self {
-        let mut attributes = HashMap::new();
-        attributes.insert("rel".to_string(), "stylesheet".to_string());
-        attributes.insert("type".to_string(), "text/css".to_string());
-        attributes.insert("href".to_string(), href);
         self.links.push(
-            Link { attributes }
+            Link::new(BTreeMap::from([
+                ("rel".to_string(), "stylesheet".to_string()),
+                ("type".to_string(), "text/css".to_string()),
+                ("href".to_string(), href),
+            ])).unwrap()
         );
         self
     }

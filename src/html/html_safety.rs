@@ -194,3 +194,27 @@ pub fn get_attribute_blacklist() -> &'static HashSet<&'static str> {
 }
 
 pub const ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS: &[char] = &['\0', '\'', '"', '<', '>', '/', '='];
+
+pub trait EscapeHtml {
+    fn escape_html(&self) -> String;
+}
+
+impl EscapeHtml for String {
+    fn escape_html(&self) -> String {
+        self.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+    }
+}
+
+impl EscapeHtml for &str {
+    fn escape_html(&self) -> String {
+        self.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+    }
+}

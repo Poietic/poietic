@@ -15,6 +15,8 @@ pub mod template;
 
 use std::collections::HashMap;
 
+use crate::html::html_safety::EscapeHtml;
+
 pub struct Meta {
     attributes: HashMap<String, String>,
 }
@@ -58,9 +60,9 @@ impl Link {
 fn dump_non_container_tag(tag_name: &str, attributes: &HashMap<String, String>) -> String {
     let attributes_string = attributes
         .iter()
-        .map(|(key, value)| format!(" {}=\"{}\"", key.escape_default(), value.escape_default()))
+        .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html()))
         .collect::<String>();
-    format!("<{tag_name}{attributes_string}/>")
+    format!("<{}{attributes_string}/>", tag_name.escape_html())
 }
 
 static ALLOWED_LINK_ATTRIBUTES: &[&str] = &[
@@ -78,6 +80,7 @@ static ALLOWED_LINK_ATTRIBUTES: &[&str] = &[
 static ALLOWED_META_ATTRIBUTES: &[&str] = &[
     "http_equiv",
     "content",
+    "charset",
     "content_security_policy",
     "content_type",
     "default_style",

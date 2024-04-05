@@ -1,4 +1,4 @@
-use crate::html::HtmlNode;
+use crate::html::{html_safety::EscapeHtml, HtmlNode};
 
 use super::page_template_config::PageTemplateConfig;
 use crate::html::page_template::{Link, Meta};
@@ -6,7 +6,7 @@ use crate::html::page_template::{Link, Meta};
 fn generate_scripts(scripts: Vec<String>) -> String {
     scripts
         .iter()
-        .map(|src| format!("<script src=\"{}\"></script>", src.escape_default()))
+        .map(|src| format!("<script src=\"{}\"></script>", src.escape_html()))
         .collect()
 }
 
@@ -22,11 +22,11 @@ pub fn render_page(config: PageTemplateConfig, node: HtmlNode) -> String {
     [
         "<!DOCTYPE html>".to_string(),
         match config.language {
-            Some(lang) => format!("<html lang=\"{}\">", lang.escape_default()),
+            Some(lang) => format!("<html lang=\"{}\">", lang.escape_html()),
             None => "<html>".to_string(),
         },
         "<head>".to_string(),
-        format!("<title>{}</title>", config.title.escape_default()),
+        format!("<title>{}</title>", config.title.escape_html()),
         generate_meta(config.meta_vec),
         generate_links(config.links),
         "</head><body>".to_string(),
@@ -73,7 +73,7 @@ mod test {
 
         assert_eq!(
             &result,
-            r#"<meta charset="UTF-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport" />"#
+            r#"<meta charset="UTF-8"/>"#
         )
     }
 
@@ -122,32 +122,31 @@ mod test {
 
         assert_eq!(
             &result,
-            r#"<script src="&quot;></script><div><h1>Wordpress is better than Poietic!</h1></div>< src=&quot;"></script>"#
+            r#"<script src="&quot;&gt;&lt;/script&gt;&lt;div&gt;&lt;h1&gt;Wordpress is better than Poietic!&lt;/h1&gt;&lt;/div&gt;&lt;script src=&quot;"></script>"#
         );
     }
 
     #[test]
     fn meta_script_injection() {
         let evil_meta_attribute =
-            r#""/><title>Wordpress is better than Poietic!</title><meta name=""#;
+            r#""/><title>Evil injection!</title><meta name=""#;
 
         let result = generate_meta(vec![Meta::new(HashMap::from([(
-            "name".to_string(),
+            "charset".to_string(),
             evil_meta_attribute.to_string(),
         )]))
         .unwrap()]);
 
         assert_eq!(
             &result,
-            r#"<meta name="&quot/><title>Wordpress is better than Poietic!</title><meta name=&quot;"#
+            r#"<meta charset="&quot;/&gt;&lt;title&gt;Evil injection!&lt;/title&gt;&lt;meta name=&quot;"/>"#
         );
     }
 
     #[test]
     fn link_script_injection() {
         let evil_link_attribute =
-            r#""/><title>Wordpress is better than Poietic!</title><link rel=""#;
-
+            r#""/><title>Evil injection!</title><link rel=""#;
         let result = generate_links(vec![Link::new(HashMap::from([(
             "rel".to_string(),
             evil_link_attribute.to_string(),
@@ -156,7 +155,7 @@ mod test {
 
         assert_eq!(
             &result,
-            r#"&quot;/><title>Wordpress is better than Poietic!</title><link rel=&quot;"#
+            r#"<link rel="&quot;/&gt;&lt;title&gt;Evil injection!&lt;/title&gt;&lt;link rel=&quot;"/>"#
         );
     }
 
@@ -173,7 +172,7 @@ mod test {
 
         assert_eq!(
             &render,
-            r#"<!DOCTYPE html><html lang="en&quot;><body><h1>Evil injection in language</h1></body></html><!--"><head><title>Foo Bar&lt;/title&gt;&lt;head&gt;&lt;body&gt;&lt;h1&gt;Evil injection in title&lt;/h1&gt;</title></head><body><p></p><script src="main.js"></script></body></html>"#
+            r#"<!DOCTYPE html><html lang="en&quot;&gt;&lt;body&gt;&lt;h1&gt;Evil injection in language&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;&lt;!-- "><head><title>Foo Bar&lt;/title&gt;&lt;head&gt;&lt;body&gt;&lt;h1&gt;Evil injection in title&lt;/h1&gt;</title></head><body><p></p></body></html>"#
         );
     }
 }

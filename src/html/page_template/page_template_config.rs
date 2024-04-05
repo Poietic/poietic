@@ -60,7 +60,7 @@ impl PageTemplateConfigBuilder {
         self
     }
 
-    pub fn script(mut self, scripts: Vec<String>) -> Self {
+    pub fn scripts(mut self, scripts: Vec<String>) -> Self {
         self.scripts = scripts;
         self
     }

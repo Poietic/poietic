@@ -60,7 +60,7 @@ fn dump_non_container_tag(tag_name: &str, attributes: &HashMap<String, String>) 
         .iter()
         .map(|(key, value)| format!(" {}=\"{}\"", key.escape_default(), value.escape_default()))
         .collect::<String>();
-    format!("<{tag_name} {attributes_string}/>")
+    format!("<{tag_name}{attributes_string}/>")
 }
 
 static ALLOWED_LINK_ATTRIBUTES: &[&str] = &[

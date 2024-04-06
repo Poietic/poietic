@@ -13,35 +13,35 @@
 use std::collections::HashMap;
 
 use crate::{
-    component::{
-        AsyncComponent, JsonValue, RenderError, RenderFuture, RenderParams,
-    },
-    html::{HtmlElement, HtmlNode, TextNode},
+    component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent},
+    html::HtmlElement,
 };
 
-#[derive(Default)]
 pub struct Link;
 
-impl AsyncComponent for Link {
-    fn render(&self, params: RenderParams) -> RenderFuture {
-        Box::pin(async move {
-            let Some(JsonValue::String(title)) = params.get("title") else {
-                return Err(RenderError::BadParams);
-            };
+impl Link {
+    fn extract_title(params: &RenderParams) -> Result<&str, RenderError> {
+        match params.get("title") {
+            Some(JsonValue::String(title)) => Ok(title),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+    fn extract_target(params: &RenderParams) -> Result<&str, RenderError> {
+        match params.get("target") {
+            Some(JsonValue::String(target)) => Ok(target),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+}
 
-            let Some(JsonValue::String(target)) = params.get("target") else {
-                return Err(RenderError::BadParams);
-            };
-
-            Ok(HtmlElement::Node(HtmlNode::new(
-                "a".to_string(),
-                HashMap::from([
-                    ("href".to_string(), target.clone())
-                ]),
-                vec![
-                    HtmlElement::Text(TextNode::new(title.clone()))
-                ]
-            )?))
-        })
+impl SyncComponent for Link {
+    fn render(&self, params: RenderParams) -> RenderResult {
+        let title = Self::extract_title(&params)?;
+        let target = Self::extract_target(&params)?;
+        Ok(HtmlElement::create_node(
+            "a".to_string(),
+            HashMap::from([("href".to_string(), target.to_string())]),
+            vec![HtmlElement::create_text(title.to_string())],
+        )?)
     }
 }

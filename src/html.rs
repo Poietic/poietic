@@ -15,6 +15,8 @@ mod html_node;
 mod html_safety;
 mod text_node;
 
+use std::collections::HashMap;
+
 pub use self::html_error::HtmlError;
 pub use self::html_node::HtmlNode;
 pub use self::text_node::TextNode;
@@ -26,6 +28,18 @@ pub enum HtmlElement {
 }
 
 impl HtmlElement {
+    pub fn create_node(
+        tag: String,
+        attributes: HashMap<String, String>,
+        children: Vec<HtmlElement>,
+    ) -> Result<Self, HtmlError> {
+        Ok(Self::Node(HtmlNode::new(tag, attributes, children)?))
+    }
+    pub fn create_text(
+        text: String,
+    ) -> Self {
+        Self::Text(TextNode::new(text))
+    }
     pub fn dump_html(&self) -> String {
         match self {
             HtmlElement::Node(html_node) => html_node.dump_html(),

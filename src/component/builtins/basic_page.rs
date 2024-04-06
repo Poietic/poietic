@@ -12,77 +12,78 @@
 
 use crate::{
     component::{
-        render_composition, AsyncComponent, JsonValue, RenderError, RenderFuture, RenderParams,
+        render_composition_list, AsyncComponent, JsonValue, RenderError, RenderFuture,
+        RenderParams, RenderResult,
     },
-    html::{HtmlElement, HtmlNode, TextNode},
+    html::HtmlElement,
 };
 
-#[derive(Default)]
 pub struct BasicPage;
+
+impl BasicPage {
+    fn extract_title(params: &RenderParams) -> Result<&str, RenderError> {
+        match params.get("title") {
+            Some(JsonValue::String(title)) => Ok(title),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+    fn is_not_poietic_link(value: &JsonValue) -> bool {
+        let Some(object) = value.as_object() else {
+            return true;
+        };
+        let Some(JsonValue::String(component_type)) = object.get("component") else {
+            return true;
+        };
+        component_type != "poietic:Link"
+    }
+    fn extract_nav_links(params: &RenderParams) -> Result<&[JsonValue], RenderError> {
+        let Some(JsonValue::Array(nav_links)) = params.get("nav_links") else {
+            return Err(RenderError::BadParams);
+        };
+        if nav_links.iter().any(Self::is_not_poietic_link) {
+            return Err(RenderError::BadParams);
+        }
+        return Ok(nav_links);
+    }
+    fn extract_content(params: &RenderParams) -> Result<&[JsonValue], RenderError> {
+        match params.get("content") {
+            Some(JsonValue::Array(content)) => Ok(content),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+    fn build_header(title: &str, nav_links: Vec<HtmlElement>) -> RenderResult {
+        let title_text = HtmlElement::create_text(title.to_string());
+        let title =
+            HtmlElement::create_node("h1".to_string(), Default::default(), vec![title_text])?;
+        let nav = HtmlElement::create_node("nav".to_string(), Default::default(), nav_links)?;
+        Ok(HtmlElement::create_node(
+            "header".to_string(),
+            Default::default(),
+            vec![title, nav],
+        )?)
+    }
+    fn build(header: HtmlElement, content: Vec<HtmlElement>) -> RenderResult {
+        let main = HtmlElement::create_node("main".to_string(), Default::default(), content)?;
+        Ok(HtmlElement::create_node(
+            "div".to_string(),
+            Default::default(),
+            vec![header, main],
+        )?)
+    }
+}
 
 impl AsyncComponent for BasicPage {
     fn render(&self, params: RenderParams) -> RenderFuture {
         Box::pin(async move {
-            let Some(JsonValue::String(title)) = params.get("title") else {
-                return Err(RenderError::BadParams);
-            };
+            let title = Self::extract_title(&params)?;
+            let nav_links = Self::extract_nav_links(&params)?;
+            let content = Self::extract_content(&params)?;
 
-            let Some(JsonValue::Array(nav_links)) = params.get("nav_links") else {
-                return Err(RenderError::BadParams);
-            };
+            let rendered_nav_links = render_composition_list(nav_links).await?;
+            let rendered_content = render_composition_list(content).await?;
+            let header = Self::build_header(title, rendered_nav_links)?;
 
-            let mut nav_link_output = Vec::<HtmlElement>::with_capacity(nav_links.len());
-
-            for nav_link in nav_links {
-                if let JsonValue::Object(obj) = nav_link {
-                    if let Some(component_value) = obj.get("component") {
-                        if let JsonValue::String(component_str) = component_value {
-                            if component_str == "poietic:Link" {
-                                nav_link_output.push(render_composition(nav_link.clone()).await?);
-                                continue;
-                            }
-                        }
-                    }
-                }
-                return Err(RenderError::BadParams);
-            }
-
-            let Some(JsonValue::Array(content)) = params.get("content") else {
-                return Err(RenderError::BadParams);
-            };
-
-            let mut content_output = Vec::<HtmlElement>::with_capacity(content.len());
-            for child in content {
-                content_output.push(render_composition(child.clone()).await?);
-            }
-
-            Ok(HtmlElement::Node(HtmlNode::new(
-                "div".to_string(),
-                Default::default(),
-                vec![
-                    HtmlElement::Node(HtmlNode::new(
-                        "header".to_string(),
-                        Default::default(),
-                        vec![
-                            HtmlElement::Node(HtmlNode::new(
-                                "h1".to_string(),
-                                Default::default(),
-                                vec![HtmlElement::Text(TextNode::new(title.clone()))],
-                            )?),
-                            HtmlElement::Node(HtmlNode::new(
-                                "nav".to_string(),
-                                Default::default(),
-                                nav_link_output
-                            )?),
-                        ]
-                    )?),
-                    HtmlElement::Node(HtmlNode::new(
-                        "main".to_string(),
-                        Default::default(),
-                        content_output,
-                    )?),
-                ],
-            )?))
+            Self::build(header, rendered_content)
         })
     }
 }

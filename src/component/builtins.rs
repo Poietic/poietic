@@ -10,10 +10,38 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
+use std::sync::Arc;
+
+use self::{
+    basic_page::BasicPage, component_list::ComponentList, heading::Heading, link::Link,
+    paragraph::Paragraph,
+};
+
+use super::Component;
+
 pub mod basic_page;
-pub mod link;
 pub mod component_list;
 pub mod heading;
+pub mod link;
 pub mod paragraph;
 #[cfg(test)]
 mod test;
+
+pub fn get_builtin_components() -> Vec<(String, Component)> {
+    vec![
+        ("Heading".to_string(), Component::Sync(Arc::new(Heading))),
+        (
+            "Paragraph".to_string(),
+            Component::Sync(Arc::new(Paragraph)),
+        ),
+        (
+            "ComponentList".to_string(),
+            Component::Async(Arc::new(ComponentList)),
+        ),
+        ("Link".to_string(), Component::Sync(Arc::new(Link))),
+        (
+            "BasicPage".to_string(),
+            Component::Async(Arc::new(BasicPage)),
+        ),
+    ]
+}

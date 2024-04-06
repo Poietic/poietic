@@ -12,14 +12,12 @@
 
 use crate::{
     component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent},
-    html::{HtmlElement, HtmlNode, TextNode},
+    html::HtmlElement,
 };
 
-#[derive(Default)]
 pub struct Heading;
-
-impl SyncComponent for Heading {
-    fn render(&self, params: RenderParams) -> RenderResult {
+impl Heading {
+    fn extract_importance(params: &RenderParams) -> Result<u64, RenderError> {
         let Some(JsonValue::Number(importance)) = params.get("importance") else {
             return Err(RenderError::BadParams);
         };
@@ -29,14 +27,25 @@ impl SyncComponent for Heading {
         if !(1..=6).contains(&importance) {
             return Err(RenderError::BadParams);
         }
-        let Some(JsonValue::String(text)) = params.get("text") else {
-            return Err(RenderError::BadParams);
-        };
-        let text_element = HtmlElement::Text(TextNode::new(text.clone()));
-        Ok(HtmlElement::Node(HtmlNode::new(
+        Ok(importance)
+    }
+    fn extract_text(params: &RenderParams) -> Result<&str, RenderError> {
+        match params.get("text") {
+            Some(JsonValue::String(text)) => Ok(text),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+}
+
+impl SyncComponent for Heading {
+    fn render(&self, params: RenderParams) -> RenderResult {
+        let importance = Self::extract_importance(&params)?;
+        let text = Self::extract_text(&params)?;
+        let text_element = HtmlElement::create_text(text.to_string());
+        Ok(HtmlElement::create_node(
             format!("h{}", importance),
             Default::default(),
             vec![text_element],
-        )?))
+        )?)
     }
 }

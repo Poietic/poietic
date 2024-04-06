@@ -49,7 +49,7 @@ async fn page_route_service(
     let connection_manager = connection_manager.into_inner();
     let page = connection_manager.get_page_at_path(&page_path).await?;
     let composition = connection_manager.get_composition_from_page(&page).await?;
-    let rendered_tree = render_composition(composition.content).await?;
+    let rendered_tree = render_composition(&composition.content).await?;
     let output_html = rendered_tree.dump_html();
     Ok(output_html)
 }

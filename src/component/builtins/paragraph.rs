@@ -12,22 +12,28 @@
 
 use crate::{
     component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent},
-    html::{HtmlElement, HtmlNode, TextNode},
+    html::HtmlElement,
 };
 
-#[derive(Default)]
 pub struct Paragraph;
+
+impl Paragraph {
+    fn extract_content(params: &RenderParams) -> Result<&str, RenderError> {
+        match params.get("content") {
+            Some(JsonValue::String(content)) => Ok(content),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+}
 
 impl SyncComponent for Paragraph {
     fn render(&self, params: RenderParams) -> RenderResult {
-        let Some(JsonValue::String(content)) = params.get("content") else {
-            return Err(RenderError::BadParams);
-        };
-        let text_element = HtmlElement::Text(TextNode::new(content.clone()));
-        Ok(HtmlElement::Node(HtmlNode::new(
+        let content = Self::extract_content(&params)?;
+        let text_element = HtmlElement::create_text(content.to_string());
+        Ok(HtmlElement::create_node(
             "p".to_string(),
             Default::default(),
             vec![text_element],
-        )?))
+        )?)
     }
 }

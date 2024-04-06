@@ -46,7 +46,7 @@ async fn composition_rendering() {
     .unwrap();
     let expected_output =
         "<div><h1>Lorem ipsum</h1><p>Lorem ipsum, dolor sit amet.</p><a href=\"/\">Home</a></div>";
-    let output = render_composition(composition).await.unwrap().dump_html();
+    let output = render_composition(&composition).await.unwrap().dump_html();
     assert_eq!(expected_output, output);
 }
 
@@ -88,6 +88,6 @@ async fn basic_page() {
     .unwrap();
 
     let expected_output = "<div><header><h1>Poietic</h1><nav><a href=\"/\">Home</a><a href=\"/about\">About us</a></nav></header><main><p>Lorem ipsum, dolor sit amet.</p></main></div>";
-    let output = render_composition(basic_page).await.unwrap().dump_html();
+    let output = render_composition(&basic_page).await.unwrap().dump_html();
     assert_eq!(expected_output, output);
 }

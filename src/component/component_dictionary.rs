@@ -10,17 +10,11 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{
-    collections::HashMap,
-    sync::{Arc, OnceLock},
-};
+use std::{collections::HashMap, sync::OnceLock};
 
 use tokio::sync::RwLock;
 
-use super::{
-    builtins::{basic_page::BasicPage, component_list::ComponentList, heading::Heading, link::Link, paragraph::Paragraph},
-    Component,
-};
+use super::{builtins::get_builtin_components, Component};
 
 pub struct ComponentNamespace {
     components: HashMap<String, Component>,
@@ -53,29 +47,8 @@ pub enum ComponentLookupError {
 }
 
 fn create_component_dictionary() -> RwLock<ComponentDictionary> {
-    let builtin_components: &[(String, Component)] = &[
-        (
-            "Heading".to_string(),
-            Component::Sync(Arc::new(Heading::default())),
-        ),
-        (
-            "Paragraph".to_string(),
-            Component::Sync(Arc::new(Paragraph::default())),
-        ),
-        (
-            "ComponentList".to_string(),
-            Component::Async(Arc::new(ComponentList::default())),
-        ),
-        (
-            "Link".to_string(),
-            Component::Async(Arc::new(Link::default()))
-        ),
-        (
-            "BasicPage".to_string(),
-            Component::Async(Arc::new(BasicPage::default()))
-        ),
-    ];
-    let poietic_namespace = ComponentNamespace::new(builtin_components.iter().cloned().collect());
+    let builtin_components = get_builtin_components();
+    let poietic_namespace = ComponentNamespace::new(builtin_components.into_iter().collect());
     RwLock::new(ComponentDictionary::new(
         [("poietic".to_string(), poietic_namespace)].into(),
     ))

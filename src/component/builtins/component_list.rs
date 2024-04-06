@@ -12,29 +12,38 @@
 
 use crate::{
     component::{
-        render_composition, AsyncComponent, JsonValue, RenderError, RenderFuture, RenderParams,
+        render_composition_list, AsyncComponent, JsonValue, RenderError, RenderFuture,
+        RenderParams, RenderResult,
     },
-    html::{HtmlElement, HtmlNode},
+    html::HtmlElement,
 };
 
-#[derive(Default)]
 pub struct ComponentList;
+
+impl ComponentList {
+    fn extract_children(
+        params: &RenderParams,
+    ) -> Result<&[JsonValue], RenderError> {
+        match params.get("children") {
+            Some(JsonValue::Array(children)) => Ok(children),
+            _ => Err(RenderError::BadParams),
+        }
+    }
+    fn build(children: Vec<HtmlElement>) -> RenderResult {
+        Ok(HtmlElement::create_node(
+            "div".to_string(),
+            Default::default(),
+            children,
+        )?)
+    }
+}
 
 impl AsyncComponent for ComponentList {
     fn render(&self, params: RenderParams) -> RenderFuture {
         Box::pin(async move {
-            let Some(JsonValue::Array(children)) = params.get("children") else {
-                return Err(RenderError::BadParams);
-            };
-            let mut children_output = Vec::<HtmlElement>::with_capacity(children.len());
-            for child in children {
-                children_output.push(render_composition(child.clone()).await?);
-            }
-            Ok(HtmlElement::Node(HtmlNode::new(
-                "div".to_string(),
-                Default::default(),
-                children_output,
-            )?))
+            let children = Self::extract_children(&params)?;
+            let rendered_children = render_composition_list(children).await?;
+            Self::build(rendered_children)
         })
     }
 }

@@ -40,7 +40,7 @@ pub enum Component {
     Async(Arc<dyn AsyncComponent>),
 }
 
-pub async fn render_composition(composition: JsonValue) -> RenderResult {
+pub async fn render_composition(composition: &JsonValue) -> RenderResult {
     let Some(JsonValue::String(component_name)) = composition.get("component") else {
         return Err(RenderError::BadParams);
     };
@@ -54,4 +54,14 @@ pub async fn render_composition(composition: JsonValue) -> RenderResult {
         Component::Async(component) => component.render(params.clone()).await,
         Component::Sync(component) => component.render(params.clone()),
     }
+}
+
+pub async fn render_composition_list(
+    composition_list: &[JsonValue],
+) -> Result<Vec<HtmlElement>, RenderError> {
+    let mut outputs = Vec::with_capacity(composition_list.len());
+    for composition in composition_list {
+        outputs.push(render_composition(composition).await?);
+    }
+    Ok(outputs)
 }

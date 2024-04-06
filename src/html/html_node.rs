@@ -19,6 +19,8 @@ use super::{
     HtmlElement, HtmlError,
 };
 
+use std::fmt::Write;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct HtmlNode {
     tag: String,
@@ -33,7 +35,7 @@ impl HtmlNode {
         children: Vec<HtmlElement>,
     ) -> Result<Self, HtmlError> {
         Self::validate_tag(&tag)?;
-        for (attribute_name, _) in &attributes {
+        for attribute_name in attributes.keys() {
             Self::validate_attribute_name(attribute_name)?;
         }
         Ok(Self {
@@ -75,8 +77,10 @@ impl HtmlNode {
             self.tag,
             self.attributes
                 .iter()
-                .map(|(key, value)| format!(" {}=\"{}\"", key, Self::escape_attribute_value(value)))
-                .collect::<String>(),
+                .fold(String::new(), |mut acc, (key, value)| {
+                    let _ = write!(acc, " {}=\"{}\"", key, Self::escape_attribute_value(value));
+                    acc
+                }),
             self.children
                 .iter()
                 .map(HtmlElement::dump_html)

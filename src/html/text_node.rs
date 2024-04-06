@@ -17,7 +17,7 @@ pub struct TextNode {
 
 impl TextNode {
     pub fn new(text: String) -> Self {
-        Self { text: text }
+        Self { text }
     }
     pub fn dump_html(&self) -> String {
         self.text.replace('<', "&lt;").replace('>', "&gt;")

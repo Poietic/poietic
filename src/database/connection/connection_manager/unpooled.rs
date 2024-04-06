@@ -44,12 +44,9 @@ impl UnpooledConnectionManager {
     }
     pub async fn get_connection(&self) -> Result<ConnectionHandle, DatabaseError> {
         let mut connection = AcquireConnection::new(self.clone()).await;
-        match connection.health().await {
-            Err(_) => {
-                connection = any::connect(self.address.as_ref()).await?;
-            }
-            _ => {}
-        };
+        if connection.health().await.is_err() {
+            connection = any::connect(self.address.as_ref()).await?;
+        }
         Ok(ConnectionHandle::new_unpooled(self.clone(), connection))
     }
 
@@ -90,7 +87,7 @@ impl Future for AcquireConnection {
                 cx.waker().wake_by_ref();
                 Poll::Pending
             }
-            Err(TryLockError::Poisoned(error)) => Err(error).unwrap(),
+            Err(TryLockError::Poisoned(error)) => panic!("{:?}", error),
         }
     }
 }
@@ -122,7 +119,7 @@ impl Future for ReleaseConnection {
                 cx.waker().wake_by_ref();
                 Poll::Pending
             }
-            Err(TryLockError::Poisoned(error)) => Err(error).unwrap(),
+            Err(TryLockError::Poisoned(error)) => panic!("{:?}", error),
         }
     }
 }

@@ -43,7 +43,7 @@ impl BasicPage {
         if nav_links.iter().any(Self::is_not_poietic_link) {
             return Err(RenderError::BadParams);
         }
-        return Ok(nav_links);
+        Ok(nav_links)
     }
     fn extract_content(params: &RenderParams) -> Result<&[JsonValue], RenderError> {
         match params.get("content") {

@@ -47,7 +47,7 @@ pub async fn render_composition(composition: &JsonValue) -> RenderResult {
     let Some(JsonValue::Object(params)) = composition.get("params") else {
         return Err(RenderError::BadParams);
     };
-    let Ok(component) = get_component(&component_name).await else {
+    let Ok(component) = get_component(component_name).await else {
         return Err(RenderError::BadParams);
     };
     match component {

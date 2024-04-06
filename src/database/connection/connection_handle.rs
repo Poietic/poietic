@@ -52,6 +52,31 @@ impl ConnectionHandle {
             connection,
         })
     }
+
+    fn release(&mut self) {
+        match self {
+            ConnectionHandle::Pooled(pooled) => {
+                Self::release_pooled_connection(pooled);
+            }
+            ConnectionHandle::Unpooled(unpooled) => {
+                Self::release_unpooled_connection(unpooled);
+            }
+        }
+    }
+    fn release_unpooled_connection(unpooled: &mut UnpooledConnectionHandle) {
+        if let Some(connection_manager) = unpooled.connection_manager.take() {
+            connection_manager
+                .clone()
+                .release_connection(unpooled.connection.clone());
+        }
+    }
+    fn release_pooled_connection(pooled: &mut PooledConnectionHandle) {
+        if let Some(connection_manager) = pooled.connection_manager.take() {
+            connection_manager
+                .clone()
+                .release_connection(pooled.connection.clone());
+        }
+    }
 }
 
 impl Deref for ConnectionHandle {
@@ -66,23 +91,6 @@ impl Deref for ConnectionHandle {
 
 impl Drop for ConnectionHandle {
     fn drop(&mut self) {
-        match self {
-            ConnectionHandle::Pooled(pooled) => match pooled.connection_manager.take() {
-                Some(connection_manager) => {
-                    connection_manager
-                        .clone()
-                        .release_connection(pooled.connection.clone());
-                }
-                None => {}
-            },
-            ConnectionHandle::Unpooled(unpooled) => match unpooled.connection_manager.take() {
-                Some(connection_manager) => {
-                    connection_manager
-                        .clone()
-                        .release_connection(unpooled.connection.clone());
-                }
-                None => {}
-            },
-        }
+        self.release();
     }
 }

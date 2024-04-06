@@ -100,8 +100,7 @@ mod test {
             .charset()
             .add_stylesheet("styles.css".to_string())
             .add_script("main.js".to_string())
-            .build()
-            .unwrap();
+            .build();
         let node = HtmlNode::new("p".to_string(), [].into(), [].into()).unwrap();
 
         let render = render_page(config, node);
@@ -163,8 +162,7 @@ mod test {
         let config_with_injections = PageTemplateConfigBuilder::new()
             .language(r#"en"><body><h1>Evil injection in language</h1></body></html><!-- "#.to_string())
             .title(r#"Foo Bar</title><head><body><h1>Evil injection in title</h1>"#.to_string())
-            .build()
-            .unwrap();
+            .build();
         let node = HtmlNode::new("p".to_string(), [].into(), [].into()).unwrap();
 
         let render = render_page(config_with_injections, node);

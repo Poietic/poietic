@@ -99,13 +99,13 @@ impl PageTemplateConfigBuilder {
         self
     }
 
-    pub fn build(mut self) -> Result<PageTemplateConfig, ()> {
-        return Ok(PageTemplateConfig {
+    pub fn build(self) -> PageTemplateConfig {
+        PageTemplateConfig {
             language: self.language,
             title: self.title.unwrap_or("".to_string()),
             scripts: self.scripts,
             links: self.links,
             meta_vec: self.meta_vec
-        })
+        }
     }
 }

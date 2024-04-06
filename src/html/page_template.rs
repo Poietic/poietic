@@ -61,10 +61,9 @@ impl Link {
 }
 
 fn dump_non_container_tag(tag_name: &str, attributes: &BTreeMap<String, String>) -> String {
-    let attributes_string = attributes
+    let attributes_string = format!("{}", attributes
         .iter()
-        .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html()))
-        .collect::<String>();
+        .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html())));
     format!("<{}{attributes_string}/>", tag_name.to_string().escape_html())
 }
 

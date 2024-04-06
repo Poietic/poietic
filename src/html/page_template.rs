@@ -17,17 +17,20 @@ use std::collections::BTreeMap;
 
 use crate::html::html_safety::EscapeHtml;
 
+use super::html_error::IllegalAttributeNameError;
+
 pub struct Meta {
     attributes: BTreeMap<String, String>,
 }
 
 impl Meta {
-    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, ()> {
-        if attributes
+    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, IllegalAttributeNameError> {
+        if let Some(illegal_attr) =
+            attributes
             .keys()
-            .any(|attr| !ALLOWED_META_ATTRIBUTES.contains(&attr.as_str()))
+            .find(|attr| !ALLOWED_META_ATTRIBUTES.contains(&attr.as_str()))
         {
-            return Err(());
+            return Err(IllegalAttributeNameError(illegal_attr.clone()));
         }
         Ok(Self { attributes })
     }
@@ -42,12 +45,12 @@ pub struct Link {
 }
 
 impl Link {
-    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, ()> {
-        if attributes
+    pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, IllegalAttributeNameError> {
+        if let Some(illegal_attr) = attributes
             .keys()
-            .any(|attr| !ALLOWED_LINK_ATTRIBUTES.contains(&attr.as_str()))
+            .find(|attr| !ALLOWED_LINK_ATTRIBUTES.contains(&attr.as_str()))
         {
-            return Err(());
+            return Err(IllegalAttributeNameError(illegal_attr.clone()));
         }
         Ok(Self { attributes })
     }

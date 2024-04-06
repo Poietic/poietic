@@ -62,7 +62,7 @@ fn dump_non_container_tag(tag_name: &str, attributes: &BTreeMap<String, String>)
         .iter()
         .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html()))
         .collect::<String>();
-    format!("<{}{attributes_string}/>", tag_name.escape_html())
+    format!("<{}{attributes_string}/>", tag_name.to_string().escape_html())
 }
 
 static ALLOWED_LINK_ATTRIBUTES: &[&str] = &[

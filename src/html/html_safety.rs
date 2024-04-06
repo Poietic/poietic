@@ -208,13 +208,3 @@ impl EscapeHtml for String {
             .replace("'", "&#39;")
     }
 }
-
-impl EscapeHtml for &str {
-    fn escape_html(&self) -> String {
-        self.replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#39;")
-    }
-}

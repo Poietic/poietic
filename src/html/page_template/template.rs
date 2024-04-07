@@ -8,7 +8,7 @@ fn generate_scripts(scripts: Vec<String>) -> String {
     scripts.iter().fold(String::new(), |mut output, src| {
         let _ = write!(
             output,
-            "script src=\"{}\"></script>",
+            "<script src=\"{}\"></script>",
             src.escape_html()
         );
         output

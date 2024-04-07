@@ -62,7 +62,7 @@ impl HtmlNode {
             })
             || get_attribute_blacklist().contains(name)
         {
-            return Err(HtmlError::IllegalAttributeName);
+            return Err(HtmlError::illegal_attribute(name.to_owned()));
         }
         Ok(())
     }
@@ -124,14 +124,14 @@ mod test {
     fn unsafe_attribute_name() {
         for attribute_name in ["", "\"", "'", "a/", "x=", ">", "\0", "<"] {
             assert_eq!(
-                Err(HtmlError::IllegalAttributeName),
+                Err(HtmlError::illegal_attribute(attribute_name.to_owned())),
                 HtmlNode::validate_attribute_name(attribute_name)
             );
         }
 
         for attribute_name in ATTRIBUTE_BLACKLIST.iter().cloned() {
             assert_eq!(
-                Err(HtmlError::IllegalAttributeName),
+                Err(HtmlError::illegal_attribute(attribute_name.to_owned())),
                 HtmlNode::validate_attribute_name(attribute_name)
             );
         }

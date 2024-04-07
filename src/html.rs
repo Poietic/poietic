@@ -14,6 +14,7 @@ mod html_error;
 mod html_node;
 mod html_safety;
 mod text_node;
+mod page_template;
 
 use std::collections::HashMap;
 

@@ -14,7 +14,8 @@ use std::collections::HashMap;
 
 use super::{
     html_safety::{
-        get_attribute_blacklist, get_safe_html_tag_set, ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS,
+        get_attribute_blacklist, get_safe_html_tag_set, EscapeHtml,
+        ILLEGAL_HTML_ATTRIBUTE_NAME_CHARACTERS,
     },
     HtmlElement, HtmlError,
 };
@@ -67,10 +68,6 @@ impl HtmlNode {
         Ok(())
     }
 
-    fn escape_attribute_value(text: &str) -> String {
-        text.replace('\\', "\\\\").replace('\"', "\\\"")
-    }
-
     pub fn dump_html(&self) -> String {
         format!(
             "<{0}{1}>{2}</{0}>",
@@ -78,7 +75,7 @@ impl HtmlNode {
             self.attributes
                 .iter()
                 .fold(String::new(), |mut acc, (key, value)| {
-                    let _ = write!(acc, " {}=\"{}\"", key, Self::escape_attribute_value(value));
+                    let _ = write!(acc, " {}=\"{}\"", key, value.escape_html());
                     acc
                 }),
             self.children
@@ -97,20 +94,6 @@ mod test {
     fn create_html_node() {
         let node = HtmlNode::new("p".to_string(), [].into(), [].into());
         assert!(node.is_ok());
-    }
-
-    #[test]
-    fn atribute_html_injection() {
-        let text = "Lorem ipsum\">Evil injection<div attr=\"";
-        let escaped = HtmlNode::escape_attribute_value(text);
-        assert_eq!("Lorem ipsum\\\">Evil injection<div attr=\\\"", escaped);
-
-        let text = "Lorem ipsum\\\">Evil injection<div attr=\\\"";
-        let escaped = HtmlNode::escape_attribute_value(text);
-        assert_eq!(
-            "Lorem ipsum\\\\\\\">Evil injection<div attr=\\\\\\\"",
-            escaped
-        );
     }
 
     #[test]

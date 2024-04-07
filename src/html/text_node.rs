@@ -10,6 +10,8 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
+use super::html_safety::EscapeHtml;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct TextNode {
     text: String,
@@ -20,18 +22,6 @@ impl TextNode {
         Self { text }
     }
     pub fn dump_html(&self) -> String {
-        self.text.replace('<', "&lt;").replace('>', "&gt;")
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use crate::html::TextNode;
-
-    #[test]
-    fn html_injection() {
-        let text = "<div>EvilInjection</div>".to_string();
-        let escaped = TextNode::new(text).dump_html();
-        assert_eq!("&lt;div&gt;EvilInjection&lt;/div&gt;", escaped);
+        self.text.escape_html()
     }
 }

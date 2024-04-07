@@ -10,8 +10,6 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
-
 use crate::{
     component::{JsonValue, RenderError, RenderParams, RenderResult, SyncComponent},
     html::HtmlElement,
@@ -40,7 +38,7 @@ impl SyncComponent for Link {
         let target = Self::extract_target(&params)?;
         Ok(HtmlElement::create_node(
             "a".to_string(),
-            HashMap::from([("href".to_string(), target.to_string())]),
+            [("href".to_string(), target.to_string())].into(),
             vec![HtmlElement::create_text(title.to_string())],
         )?)
     }

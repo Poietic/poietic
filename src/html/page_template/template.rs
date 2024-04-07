@@ -1,4 +1,4 @@
-use crate::html::{html_safety::EscapeHtml, HtmlNode};
+use crate::html::{html_safety::EscapeHtml, HtmlElement};
 
 use super::page_template_config::PageTemplateConfig;
 use crate::html::page_template::{Link, Meta};
@@ -6,11 +6,7 @@ use std::fmt::Write;
 
 fn generate_scripts(scripts: Vec<String>) -> String {
     scripts.iter().fold(String::new(), |mut output, src| {
-        let _ = write!(
-            output,
-            "<script src=\"{}\"></script>",
-            src.escape_html()
-        );
+        let _ = write!(output, "<script src=\"{}\"></script>", src.escape_html());
         output
     })
 }
@@ -23,7 +19,7 @@ fn generate_links(links: Vec<Link>) -> String {
     links.iter().map(|link| link.dump_html()).collect()
 }
 
-pub fn render_page(config: PageTemplateConfig, node: HtmlNode) -> String {
+pub fn render_page(config: PageTemplateConfig, html_element: HtmlElement) -> String {
     [
         "<!DOCTYPE html>".to_string(),
         match config.language {
@@ -35,7 +31,7 @@ pub fn render_page(config: PageTemplateConfig, node: HtmlNode) -> String {
         generate_meta(config.meta_vec),
         generate_links(config.links),
         "</head><body>".to_string(),
-        node.dump_html(),
+        html_element.dump_html(),
         generate_scripts(config.scripts),
         "</body></html>".to_string(),
     ]
@@ -101,7 +97,7 @@ mod test {
             .add_stylesheet("styles.css".to_string())
             .add_script("main.js".to_string())
             .build();
-        let node = HtmlNode::new("p".to_string(), [].into(), [].into()).unwrap();
+        let node = HtmlElement::create_node("p".to_string(), [].into(), [].into()).unwrap();
 
         let render = render_page(config, node);
 

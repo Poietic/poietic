@@ -16,7 +16,11 @@ use actix_web::{
 };
 
 pub mod api;
-use self::api::create_api_scope;
+pub mod page;
+use self::{
+    api::create_api_scope,
+    page::{composition_builder::get_composition_builder, get_poietic_js, index::get_index},
+};
 
 fn create_404_handler() -> Route {
     route().to(HttpResponse::NotFound)
@@ -25,5 +29,8 @@ fn create_404_handler() -> Route {
 pub fn configure_admin_app(config: &mut ServiceConfig) {
     config
         .service(create_api_scope())
+        .service(get_index)
+        .service(get_composition_builder)
+        .service(get_poietic_js)
         .default_service(create_404_handler());
 }

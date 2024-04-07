@@ -10,18 +10,19 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct IllegalAttributeNameError(pub String);
+use crate::{
+    component::{RenderParams, RenderResult, SyncComponent},
+    html::HtmlElement,
+};
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum HtmlError {
-    IllegalTag,
-    IllegalAttributeName(IllegalAttributeNameError),
-    IllegalAttributeValue,
-}
+pub struct CompositionBuilder;
 
-impl HtmlError {
-    pub fn illegal_attribute(tag: String) -> Self {
-        Self::IllegalAttributeName(IllegalAttributeNameError(tag))
+impl SyncComponent for CompositionBuilder {
+    fn render(&self, _: RenderParams) -> RenderResult {
+        Ok(HtmlElement::create_node(
+            "div".to_string(),
+            Default::default(),
+            vec![],
+        )?)
     }
 }

@@ -10,7 +10,7 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use super::{
     html_safety::{
@@ -25,14 +25,14 @@ use std::fmt::Write;
 #[derive(Debug, Clone, PartialEq)]
 pub struct HtmlNode {
     tag: String,
-    attributes: HashMap<String, String>,
+    attributes: BTreeMap<String, String>,
     children: Vec<HtmlElement>,
 }
 
 impl HtmlNode {
     pub fn new(
         tag: String,
-        attributes: HashMap<String, String>,
+        attributes: BTreeMap<String, String>,
         children: Vec<HtmlElement>,
     ) -> Result<Self, HtmlError> {
         Self::validate_tag(&tag)?;
@@ -83,6 +83,18 @@ impl HtmlNode {
                 .map(HtmlElement::dump_html)
                 .collect::<String>()
         )
+    }
+
+    pub fn append_class(&mut self, name: &str) -> Result<(), HtmlError> {
+        if name.contains(' ') {
+            return Err(HtmlError::IllegalAttributeValue);
+        }
+        let new_class_attr = match self.attributes.get("class") {
+            Some(prev_class_attr) => format!("{} {}", prev_class_attr, name),
+            None => name.to_string(),
+        };
+        self.attributes.insert("class".to_string(), new_class_attr);
+        Ok(())
     }
 }
 

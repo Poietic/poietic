@@ -50,10 +50,14 @@ pub async fn render_composition(composition: &JsonValue) -> RenderResult {
     let Ok(component) = get_component(component_name).await else {
         return Err(RenderError::BadParams);
     };
-    match component {
-        Component::Async(component) => component.render(params.clone()).await,
-        Component::Sync(component) => component.render(params.clone()),
+    let mut html_element = match component {
+        Component::Async(component) => component.render(params.clone()).await?,
+        Component::Sync(component) => component.render(params.clone())?,
+    };
+    if let HtmlElement::Node(html_node) = &mut html_element {
+        html_node.append_class(component_name)?;
     }
+    Ok(html_element)
 }
 
 pub async fn render_composition_list(

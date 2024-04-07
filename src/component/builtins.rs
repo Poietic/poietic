@@ -12,6 +12,8 @@
 
 use std::sync::Arc;
 
+use crate::component::builtins::composition_builder::CompositionBuilder;
+
 use self::{
     basic_page::BasicPage, component_list::ComponentList, heading::Heading, link::Link,
     paragraph::Paragraph,
@@ -21,6 +23,7 @@ use super::Component;
 
 pub mod basic_page;
 pub mod component_list;
+pub mod composition_builder;
 pub mod heading;
 pub mod link;
 pub mod paragraph;
@@ -39,6 +42,10 @@ pub fn get_builtin_components() -> Vec<(String, Component)> {
             Component::Async(Arc::new(ComponentList)),
         ),
         ("Link".to_string(), Component::Sync(Arc::new(Link))),
+        (
+            "CompositionBuilder".to_string(),
+            Component::Sync(Arc::new(CompositionBuilder)),
+        ),
         (
             "BasicPage".to_string(),
             Component::Async(Arc::new(BasicPage)),

@@ -13,10 +13,10 @@
 mod html_error;
 mod html_node;
 mod html_safety;
+pub mod page_template;
 mod text_node;
-mod page_template;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub use self::html_error::HtmlError;
 pub use self::html_node::HtmlNode;
@@ -31,14 +31,12 @@ pub enum HtmlElement {
 impl HtmlElement {
     pub fn create_node(
         tag: String,
-        attributes: HashMap<String, String>,
+        attributes: BTreeMap<String, String>,
         children: Vec<HtmlElement>,
     ) -> Result<Self, HtmlError> {
         Ok(Self::Node(HtmlNode::new(tag, attributes, children)?))
     }
-    pub fn create_text(
-        text: String,
-    ) -> Self {
+    pub fn create_text(text: String) -> Self {
         Self::Text(TextNode::new(text))
     }
     pub fn dump_html(&self) -> String {

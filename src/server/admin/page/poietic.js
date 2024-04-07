@@ -10,18 +10,9 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct IllegalAttributeNameError(pub String);
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum HtmlError {
-    IllegalTag,
-    IllegalAttributeName(IllegalAttributeNameError),
-    IllegalAttributeValue,
-}
-
-impl HtmlError {
-    pub fn illegal_attribute(tag: String) -> Self {
-        Self::IllegalAttributeName(IllegalAttributeNameError(tag))
-    }
+const compositionBuilders = document.getElementsByClassName(
+  "poietic:CompositionBuilder"
+);
+for (const compositionBuilder of compositionBuilders) {
+  compositionBuilder.textContent = "Composition builder goes here";
 }

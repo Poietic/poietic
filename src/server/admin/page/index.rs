@@ -10,18 +10,20 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct IllegalAttributeNameError(pub String);
+use actix_web::HttpResponse;
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum HtmlError {
-    IllegalTag,
-    IllegalAttributeName(IllegalAttributeNameError),
-    IllegalAttributeValue,
-}
+use crate::{error::PoieticError, server::admin::page::build_admin_page};
 
-impl HtmlError {
-    pub fn illegal_attribute(tag: String) -> Self {
-        Self::IllegalAttributeName(IllegalAttributeNameError(tag))
+const INDEX_PAGE_CONTENT: &str = r#"[
+{
+    "component": "poietic:Paragraph",
+    "params": {
+        "content": "Welcome to Poietic, your blazingly fast CMS!"
     }
+}
+]"#;
+
+#[actix_web::get("/")]
+pub async fn get_index() -> Result<HttpResponse, PoieticError> {
+    build_admin_page(INDEX_PAGE_CONTENT).await
 }

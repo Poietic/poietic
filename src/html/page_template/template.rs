@@ -2,12 +2,17 @@ use crate::html::{html_safety::EscapeHtml, HtmlNode};
 
 use super::page_template_config::PageTemplateConfig;
 use crate::html::page_template::{Link, Meta};
+use std::fmt::Write;
 
 fn generate_scripts(scripts: Vec<String>) -> String {
-    scripts
-        .iter()
-        .map(|src| format!("<script src=\"{}\"></script>", src.escape_html()))
-        .collect()
+    scripts.iter().fold(String::new(), |mut output, src| {
+        let _ = write!(
+            output,
+            "script src=\"{}\"></script>",
+            src.escape_html()
+        );
+        output
+    })
 }
 
 fn generate_meta(meta_tags: Vec<Meta>) -> String {
@@ -22,11 +27,11 @@ pub fn render_page(config: PageTemplateConfig, node: HtmlNode) -> String {
     [
         "<!DOCTYPE html>".to_string(),
         match config.language {
-            Some(lang) => format!("<html lang=\"{}\">", lang.escape_html()),
+            Some(lang) => format!("<html lang=\"{}\">", (&lang as &str).escape_html()),
             None => "<html>".to_string(),
         },
         "<head>".to_string(),
-        format!("<title>{}</title>", config.title.escape_html()),
+        format!("<title>{}</title>", (&config.title as &str).escape_html()),
         generate_meta(config.meta_vec),
         generate_links(config.links),
         "</head><body>".to_string(),
@@ -71,10 +76,7 @@ mod test {
 
         let result = generate_meta(meta_tags);
 
-        assert_eq!(
-            &result,
-            r#"<meta charset="UTF-8"/>"#
-        )
+        assert_eq!(&result, r#"<meta charset="UTF-8"/>"#)
     }
 
     #[test]
@@ -87,9 +89,7 @@ mod test {
 
         let result = generate_links(links);
 
-        assert_eq!(
-            &result, r#"<link href="styles.css" rel="stylesheet"/>"#
-        )
+        assert_eq!(&result, r#"<link href="styles.css" rel="stylesheet"/>"#)
     }
 
     #[test]
@@ -126,8 +126,7 @@ mod test {
 
     #[test]
     fn meta_script_injection() {
-        let evil_meta_attribute =
-            r#""/><title>Evil injection!</title><meta name=""#;
+        let evil_meta_attribute = r#""/><title>Evil injection!</title><meta name=""#;
 
         let result = generate_meta(vec![Meta::new(BTreeMap::from([(
             "charset".to_string(),
@@ -143,8 +142,7 @@ mod test {
 
     #[test]
     fn link_script_injection() {
-        let evil_link_attribute =
-            r#""/><title>Evil injection!</title><link rel=""#;
+        let evil_link_attribute = r#""/><title>Evil injection!</title><link rel=""#;
         let result = generate_links(vec![Link::new(BTreeMap::from([(
             "rel".to_string(),
             evil_link_attribute.to_string(),
@@ -160,7 +158,9 @@ mod test {
     #[test]
     fn page_render_injection() {
         let config_with_injections = PageTemplateConfigBuilder::new()
-            .language(r#"en"><body><h1>Evil injection in language</h1></body></html><!-- "#.to_string())
+            .language(
+                r#"en"><body><h1>Evil injection in language</h1></body></html><!-- "#.to_string(),
+            )
             .title(r#"Foo Bar</title><head><body><h1>Evil injection in title</h1>"#.to_string())
             .build();
         let node = HtmlNode::new("p".to_string(), [].into(), [].into()).unwrap();

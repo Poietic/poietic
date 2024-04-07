@@ -14,6 +14,7 @@ pub mod page_template_config;
 pub mod template;
 
 use std::collections::BTreeMap;
+use std::fmt::Write;
 
 use crate::html::html_safety::EscapeHtml;
 
@@ -25,8 +26,7 @@ pub struct Meta {
 
 impl Meta {
     pub fn new(attributes: BTreeMap<String, String>) -> Result<Self, IllegalAttributeNameError> {
-        if let Some(illegal_attr) =
-            attributes
+        if let Some(illegal_attr) = attributes
             .keys()
             .find(|attr| !ALLOWED_META_ATTRIBUTES.contains(&attr.as_str()))
         {
@@ -61,10 +61,18 @@ impl Link {
 }
 
 fn dump_non_container_tag(tag_name: &str, attributes: &BTreeMap<String, String>) -> String {
-    let attributes_string = format!("{}", attributes
+    let attributes_string = attributes
         .iter()
-        .map(|(key, value)| format!(" {}=\"{}\"", key.escape_html(), value.escape_html())));
-    format!("<{}{attributes_string}/>", tag_name.to_string().escape_html())
+        .fold(String::new(), |mut output, (key, value)| {
+            let _ = write!(
+                output,
+                " {}=\"{}\"",
+                key.escape_html(),
+                value.escape_html()
+            );
+            output
+        });
+    format!("<{}{attributes_string}/>", tag_name.escape_html())
 }
 
 static ALLOWED_LINK_ATTRIBUTES: &[&str] = &[

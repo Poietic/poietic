@@ -99,8 +99,63 @@ function constructCompositionParamNode(compositionBuilder, param) {
   node.setAttribute("poietic:type", "param");
   node.setAttribute("poietic:param_name", param.name);
   node.setAttribute("poietic:param_type", param.type);
-  node.replaceChildren(param.name);
+  switch (param.type) {
+    case "text":
+    case "number": {
+      const input = document.createElement("input");
+      input.type = param.type;
+      node.replaceChildren(param.name, input);
+      break;
+    }
+    case "composition-list": {
+      node.replaceChildren(
+        param.name,
+        constructCompositionListParamNode(compositionBuilder)
+      );
+      break;
+    }
+  }
   return node;
+}
+
+/**
+ * @param {CompositionBuilder} compositionBuilder
+ * @returns {HTMLDivElement}
+ */
+function constructCompositionListParamNode(compositionBuilder) {
+  const node = document.createElement("div");
+  const dropHandler = document.createElement("span");
+  dropHandler.replaceChildren("[drop here]");
+  dropHandler.addEventListener("dragover", handleDragOver);
+  dropHandler.addEventListener("drop", handleDrop);
+  node.replaceChildren(dropHandler);
+  return node;
+
+  /**
+   * @param {DragEvent} event
+   */
+  function handleDragOver(event) {
+    if (event.dataTransfer.types.includes("text/poietic-component")) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "copy";
+    }
+  }
+
+  /**
+   * @param {DragEvent} event
+   */
+  function handleDrop(event) {
+    if (event.dataTransfer.types.includes("text/poietic-component")) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text/poietic-component");
+      const component = compositionBuilder.components.get(data);
+      const componentNode = constructCompositionNode(
+        compositionBuilder,
+        component
+      );
+      node.appendChild(componentNode);
+    }
+  }
 }
 
 /**
@@ -157,14 +212,19 @@ function constructCompositionHolder(compositionBuilder) {
    * @param {DragEvent} event
    */
   function handleDrop(event) {
-    event.preventDefault();
-    const data = event.dataTransfer.getData("text/poietic-component");
-    const component = compositionBuilder.components.get(data);
-    const componentNode = constructCompositionNode(
-      compositionBuilder,
-      component
-    );
-    node.replaceChildren("Composition holder", componentNode);
+    if (
+      event.dataTransfer.types.includes("text/poietic-component") &&
+      !hasComposition()
+    ) {
+      event.preventDefault();
+      const data = event.dataTransfer.getData("text/poietic-component");
+      const component = compositionBuilder.components.get(data);
+      const componentNode = constructCompositionNode(
+        compositionBuilder,
+        component
+      );
+      node.replaceChildren("Composition holder", componentNode);
+    }
   }
 }
 

@@ -63,7 +63,7 @@ class CompositionBuilder {
  * @param {Component} component
  * @returns {HTMLDivElement}
  */
-function buildComponentNode(component) {
+function constructComponentNode(component) {
   const node = document.createElement("div");
   node.innerText = component.name;
   node.setAttribute("draggable", "true");
@@ -78,26 +78,94 @@ function buildComponentNode(component) {
  * @param {CompositionBuilder} compositionBuilder
  * @returns {HTMLDivElement}
  */
-function constructComponentHolder(compositionBuilder) {
+function constructComponentsPanel(compositionBuilder) {
+  const node = document.createElement("div");
+  node.replaceChildren(
+    "Components",
+    ...Array.from(compositionBuilder.components.values()).map(
+      constructComponentNode
+    )
+  );
+  return node;
+}
+
+/**
+ * @param {CompositionBuilder} compositionBuilder
+ * @param {ComponentParam} param
+ * @returns {HTMLDivElement}
+ */
+function constructCompositionParamNode(compositionBuilder, param) {
+  const node = document.createElement("div");
+  node.setAttribute("poietic:type", "param");
+  node.setAttribute("poietic:param_name", param.name);
+  node.setAttribute("poietic:param_type", param.type);
+  node.replaceChildren(param.name);
+  return node;
+}
+
+/**
+ * @param {CompositionBuilder} compositionBuilder
+ * @param {Component} component
+ * @returns {HTMLDivElement}
+ */
+function constructCompositionNode(compositionBuilder, component) {
+  const node = document.createElement("div");
+  node.setAttribute("poietic:type", "composition");
+  node.setAttribute("poietic:composition_component", component.name);
+  node.replaceChildren(
+    component.name,
+    ...Array.from(component.params.values()).map((param) =>
+      constructCompositionParamNode(compositionBuilder, param)
+    )
+  );
+  return node;
+}
+
+/**
+ * @param {CompositionBuilder} compositionBuilder
+ * @returns {HTMLDivElement}
+ */
+function constructCompositionHolder(compositionBuilder) {
   const node = document.createElement("div");
   node.replaceChildren("Composition holder");
-  node.addEventListener("dragover", (event) => {
-    if (event.dataTransfer.types.includes("text/poietic-component")) {
+  node.addEventListener("dragover", handleDragOver);
+  node.addEventListener("drop", handleDrop);
+  return node;
+
+  function hasComposition() {
+    return (
+      Array.from(node.children).findIndex(
+        (child) => child.getAttribute("poietic:type") === "composition"
+      ) !== -1
+    );
+  }
+
+  /**
+   * @param {DragEvent} event
+   */
+  function handleDragOver(event) {
+    if (
+      event.dataTransfer.types.includes("text/poietic-component") &&
+      !hasComposition()
+    ) {
       event.preventDefault();
       event.dataTransfer.dropEffect = "copy";
     }
-  });
-  node.addEventListener("drop", (event) => {
-    if (event.dataTransfer.types.includes("text/poietic-component")) {
-      event.preventDefault();
-      const data = event.dataTransfer.getData("text/poietic-component");
-      const component = compositionBuilder.components.get(data);
-      const componentNode = document.createElement("div");
-      componentNode.innerText = component.name;
-      node.replaceChildren("Composition holder", componentNode);
-    }
-  });
-  return node;
+  }
+
+  /**
+   * @param {DragEvent} event
+   */
+  function handleDrop(event) {
+    event.preventDefault();
+    const data = event.dataTransfer.getData("text/poietic-component");
+    const component = compositionBuilder.components.get(data);
+    const componentNode = constructCompositionNode(
+      compositionBuilder,
+      component
+    );
+    node.replaceChildren("Composition holder", componentNode);
+  }
 }
 
 /**
@@ -105,14 +173,8 @@ function constructComponentHolder(compositionBuilder) {
  * @param {CompositionBuilder} compositionBuilder
  */
 function renderCompositionBuilder(node, compositionBuilder) {
-  const componentsPanel = document.createElement("div");
-  componentsPanel.replaceChildren(
-    "Components",
-    ...Array.from(compositionBuilder.components.values()).map(
-      buildComponentNode
-    )
-  );
-  const compositionHolder = constructComponentHolder(compositionBuilder);
+  const componentsPanel = constructComponentsPanel(compositionBuilder);
+  const compositionHolder = constructCompositionHolder(compositionBuilder);
   node.replaceChildren(
     "Composition builder",
     componentsPanel,

@@ -10,7 +10,8 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use actix_web::HttpResponse;
+use actix_web::{web::Path, HttpResponse};
+use tokio::{fs::File, io::AsyncReadExt};
 
 use crate::{
     component::render_composition,
@@ -50,11 +51,18 @@ const ADMIN_PAGE_COMPOSITION_TEMPLATE: &str = r#"
 }
 "#;
 
-#[actix_web::get("/assets/poietic/scripts/poietic.js")]
-pub async fn get_poietic_js() -> HttpResponse {
+#[actix_web::get("/assets/poietic/scripts/{script_name:[0-9A-Za-z_]+[.]js}")]
+pub async fn get_script(script_name: Path<String>) -> HttpResponse {
+    let Ok(mut file) = File::open(format!("assets/admin/scripts/{}", script_name)).await else {
+        return HttpResponse::NotFound().finish();
+    };
+    let mut file_content = String::new();
+    let Ok(_) = file.read_to_string(&mut file_content).await else {
+        return HttpResponse::InternalServerError().finish();
+    };
     HttpResponse::Ok()
         .content_type("application/javascript")
-        .body(include_str!("page/poietic.js"))
+        .body(file_content)
 }
 
 pub async fn build_admin_page(content: &str) -> Result<HttpResponse, PoieticError> {

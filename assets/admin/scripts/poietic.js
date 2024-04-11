@@ -80,8 +80,10 @@ function constructComponentNode(component) {
  */
 function constructComponentsPanel(compositionBuilder) {
   const node = document.createElement("div");
+  const caption = document.createElement("h3");
+  caption.innerText = "Components";
   node.replaceChildren(
-    "Components",
+    caption,
     ...Array.from(compositionBuilder.components.values()).map(
       constructComponentNode
     )
@@ -110,7 +112,7 @@ function constructCompositionParamNode(compositionBuilder, param) {
     case "composition-list": {
       node.replaceChildren(
         param.name,
-        constructCompositionListParamNode(compositionBuilder)
+        ...constructCompositionListParam(compositionBuilder)
       );
       break;
     }
@@ -120,16 +122,16 @@ function constructCompositionParamNode(compositionBuilder, param) {
 
 /**
  * @param {CompositionBuilder} compositionBuilder
- * @returns {HTMLDivElement}
+ * @returns {HTMLDivElement[]}
  */
-function constructCompositionListParamNode(compositionBuilder) {
-  const node = document.createElement("div");
+function constructCompositionListParam(compositionBuilder) {
+  const compositionList = document.createElement("div");
+  compositionList.setAttribute("poietic:type", "composition-list");
   const dropHandler = document.createElement("span");
   dropHandler.replaceChildren("[drop here]");
   dropHandler.addEventListener("dragover", handleDragOver);
   dropHandler.addEventListener("drop", handleDrop);
-  node.replaceChildren(dropHandler);
-  return node;
+  return [dropHandler, compositionList];
 
   /**
    * @param {DragEvent} event
@@ -153,7 +155,7 @@ function constructCompositionListParamNode(compositionBuilder) {
         compositionBuilder,
         component
       );
-      node.appendChild(componentNode);
+      compositionList.appendChild(componentNode);
     }
   }
 }
@@ -177,12 +179,76 @@ function constructCompositionNode(compositionBuilder, component) {
 }
 
 /**
+ * @param {[string, any][]} pairs
+ * @returns {{[id: string]: any}}
+ */
+function collectObject(pairs) {
+  const result = {};
+  for (const pair of pairs) {
+    result[pair[0]] = pair[1];
+  }
+  return result;
+}
+
+/**
+ * @param {HTMLDivElement} compositionHolder
+ */
+function generateJson(compositionHolder) {
+  /**
+   * @param {"text" | "number" | "composition-list"} type
+   * @param {HTMLElement} node
+   */
+  function scrapeParam(type, node) {
+    switch (type) {
+      case "number":
+      case "text":
+        return node.querySelector("input").value;
+      case "composition-list": {
+        const compositionList = Array.from(node.children)
+          .filter(
+            (node) => node.getAttribute("poietic:type") === "composition-list"
+          )
+          .shift();
+        return Array.from(compositionList.children).map(scrapeComposition);
+      }
+    }
+  }
+  /**
+   * @param {HTMLDivElement} node
+   */
+  function scrapeComposition(node) {
+    const component = node.getAttribute("poietic:composition_component");
+    const paramPairs = Array.from(node.children)
+      .filter((node) => node.getAttribute("poietic:type") === "param")
+      .map((node) => ({
+        name: node.getAttribute("poietic:param_name"),
+        type: node.getAttribute("poietic:param_type"),
+        holder: node,
+      }))
+      .map((param) => [param.name, scrapeParam(param.type, param.holder)]);
+    return { component, params: collectObject(paramPairs) };
+  }
+  const composition = Array.from(compositionHolder.children)
+    .filter((node) => node.getAttribute("poietic:type") === "composition")
+    .shift();
+  const compositionJson = scrapeComposition(composition);
+  alert(JSON.stringify(compositionJson));
+}
+
+/**
  * @param {CompositionBuilder} compositionBuilder
  * @returns {HTMLDivElement}
  */
 function constructCompositionHolder(compositionBuilder) {
   const node = document.createElement("div");
-  node.replaceChildren("Composition holder");
+  const caption = document.createElement("h3");
+  const generateJsonButton = document.createElement("button");
+  generateJsonButton.innerText = "Generate JSON";
+  generateJsonButton.addEventListener("click", () => {
+    if (hasComposition()) generateJson(node);
+  });
+  caption.innerText = "Composition holder";
+  node.replaceChildren(caption, generateJsonButton);
   node.addEventListener("dragover", handleDragOver);
   node.addEventListener("drop", handleDrop);
   return node;
@@ -223,7 +289,7 @@ function constructCompositionHolder(compositionBuilder) {
         compositionBuilder,
         component
       );
-      node.replaceChildren("Composition holder", componentNode);
+      node.replaceChildren(caption, componentNode, generateJsonButton);
     }
   }
 }
@@ -233,13 +299,11 @@ function constructCompositionHolder(compositionBuilder) {
  * @param {CompositionBuilder} compositionBuilder
  */
 function renderCompositionBuilder(node, compositionBuilder) {
+  const caption = document.createElement("h2");
+  caption.innerText = "Composition builder";
   const componentsPanel = constructComponentsPanel(compositionBuilder);
   const compositionHolder = constructCompositionHolder(compositionBuilder);
-  node.replaceChildren(
-    "Composition builder",
-    componentsPanel,
-    compositionHolder
-  );
+  node.replaceChildren(caption, componentsPanel, compositionHolder);
 }
 
 const components = [

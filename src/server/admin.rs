@@ -19,7 +19,7 @@ pub mod api;
 pub mod page;
 use self::{
     api::create_api_scope,
-    page::{composition_builder::get_composition_builder, get_script, index::get_index},
+    page::{composition_builder::get_composition_builder, get_script, get_style, index::get_index},
 };
 
 fn create_404_handler() -> Route {
@@ -32,5 +32,6 @@ pub fn configure_admin_app(config: &mut ServiceConfig) {
         .service(get_index)
         .service(get_composition_builder)
         .service(get_script)
+        .service(get_style)
         .default_service(create_404_handler());
 }

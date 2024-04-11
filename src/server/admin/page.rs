@@ -65,6 +65,20 @@ pub async fn get_script(script_name: Path<String>) -> HttpResponse {
         .body(file_content)
 }
 
+#[actix_web::get("/assets/poietic/styles/{style_name:[0-9A-Za-z_]+[.]css}")]
+pub async fn get_style(style_name: Path<String>) -> HttpResponse {
+    let Ok(mut file) = File::open(format!("assets/admin/styles/{}", style_name)).await else {
+        return HttpResponse::NotFound().finish();
+    };
+    let mut file_content = String::new();
+    let Ok(_) = file.read_to_string(&mut file_content).await else {
+        return HttpResponse::InternalServerError().finish();
+    };
+    HttpResponse::Ok()
+        .content_type("text/css")
+        .body(file_content)
+}
+
 pub async fn build_admin_page(content: &str) -> Result<HttpResponse, PoieticError> {
     let composition_json = ADMIN_PAGE_COMPOSITION_TEMPLATE.replace("$content", content);
     let composition_json_value = serde_json::from_str(&composition_json).unwrap();
@@ -79,5 +93,6 @@ pub fn admin_page_template_config() -> PageTemplateConfig {
         .charset()
         .title("Poietic admin".to_string())
         .add_script("/assets/poietic/scripts/poietic.js".to_string())
+        .add_stylesheet("/assets/poietic/styles/poietic.css".to_string())
         .build()
 }

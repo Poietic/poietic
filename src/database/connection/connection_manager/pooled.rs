@@ -66,12 +66,6 @@ impl PooledConnectionManager {
     }
 
     pub(in crate::database::connection) fn release_connection(&self, connection: Surreal<Any>) {
-        tokio::spawn(self.clone().release_connection_async(connection));
-    }
-    pub(in crate::database::connection) async fn release_connection_async(
-        self,
-        connection: Surreal<Any>,
-    ) {
         self.connections.lock().unwrap().push_back(connection);
     }
 }

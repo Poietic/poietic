@@ -10,13 +10,15 @@
 //
 // You should have received a copy of the GNU General Public License along with Poietic. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{collections::VecDeque, sync::Arc};
+use std::{
+    collections::VecDeque,
+    sync::{Arc, Mutex},
+};
 
 use surrealdb::{
     engine::any::{self, Any},
     Surreal,
 };
-use tokio::sync::Mutex;
 
 use crate::database::{
     connection::connection_handle::ConnectionHandle, database_error::DatabaseError,
@@ -41,7 +43,8 @@ impl PooledConnectionManager {
         Ok(connection_manager)
     }
     pub async fn get_connection(&self) -> Result<ConnectionHandle, DatabaseError> {
-        let connection_handle = match self.connections.lock().await.pop_front() {
+        let connection = { self.connections.lock().unwrap().pop_front() };
+        let connection_handle = match connection {
             Some(connection) => {
                 let connection = match connection.health().await {
                     Ok(()) => connection,
@@ -63,12 +66,6 @@ impl PooledConnectionManager {
     }
 
     pub(in crate::database::connection) fn release_connection(&self, connection: Surreal<Any>) {
-        tokio::spawn(self.clone().release_connection_async(connection));
-    }
-    pub(in crate::database::connection) async fn release_connection_async(
-        self,
-        connection: Surreal<Any>,
-    ) {
-        self.connections.lock().await.push_back(connection);
+        self.connections.lock().unwrap().push_back(connection);
     }
 }
